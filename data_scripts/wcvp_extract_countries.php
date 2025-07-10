@@ -33,7 +33,7 @@ $in = fopen("/Users/rogerhyam/Downloads/wcvp/wcvp_distribution.csv", 'r');
 $header = fgetcsv($in, 0, '|');
 
 $out = fopen('../data/iso_countries/wcvp_countries_Q47542613.csv', 'w');
-fputcsv($out, array('wfo_id', 'q_number'));
+fputcsv($out, array('wfo_id', 'q_number'), escape: "\\");
 
 $count = 0;
 while($line = fgetcsv($in, 0, '|')){
@@ -52,7 +52,7 @@ while($line = fgetcsv($in, 0, '|')){
                 if(strtolower($row['taxon_rank']) != 'species') continue;
                 if(preg_match('/^wfo-[0-9]{10}$/', $row['wfo_id'])){
                     $pair = array($row['wfo_id'], $q);
-                    fputcsv($out, $pair);
+                    fputcsv($out, $pair, escape: "\\");
                     echo "{$count}\t{$pair[0]}\t{$pair[1]}\n";
                 }
             }

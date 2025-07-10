@@ -8,7 +8,7 @@ $map = get_mapping();
 
 // add a file to write it to.
 $out = fopen('../data/life_forms/wcvp_life_forms_Q47542613.csv', 'w');
-fputcsv($out, array('wfo_id', 'q_number'));
+fputcsv($out, array('wfo_id', 'q_number'), escape: "\\");
 
 $count = 0;
 foreach($map as $word => $q){
@@ -28,7 +28,7 @@ foreach($map as $word => $q){
     foreach ($rows as $row) {
         if(preg_match('/^wfo-[0-9]{10}$/', $row['wfo_id'])){
             $pair = array($row['wfo_id'], $q);
-            fputcsv($out, $pair);
+            fputcsv($out, $pair, escape: "\\");
             echo "{$count}\t$word\t{$pair[0]}\t{$pair[1]}\n";
             $count++;
         }

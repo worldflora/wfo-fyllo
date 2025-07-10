@@ -67,11 +67,11 @@ while($row = $response->fetch_assoc()){
                 'comments_email',
                 'authority_id'
             );
-            fputcsv($out, $header);
+            fputcsv($out, $header, escape: "\\");
 
         }
 
-        fputcsv($out, $row);
+        fputcsv($out, $row, escape: "\\");
 
 }
 

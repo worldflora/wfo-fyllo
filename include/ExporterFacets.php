@@ -495,7 +495,7 @@ class ExporterFacets{
                 'authors',
                 'micro_citation',
                 'nomenclatural_status'
-            ));
+            ), escape: "\\");
 
             // check we are starting at the beginning of the db
             $this->offset = 0;
@@ -542,7 +542,7 @@ class ExporterFacets{
             $csv_row[] = @$json->citation_micro_t;
             $csv_row[] = @$json->nomenclatural_status_s;
 
-            fputcsv($out,$csv_row);
+            fputcsv($out,$csv_row, escape: "\\");
 
         }
 
