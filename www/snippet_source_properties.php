@@ -1,7 +1,7 @@
 <?php
 
 // Edit the properties of the source
-if(@$_POST && @$_POST['properties_button'] &&  Authorisation::canEditSourceData($source_id)){
+if(@$_POST && @$_POST['properties_button'] &&  $user){
 
     $name_safe = $mysqli->real_escape_string($_POST['name']);
     $description_safe = $mysqli->real_escape_string($_POST['description']);
@@ -23,7 +23,7 @@ $description = $source['description'];
 $link_uri = $source['link_uri'];
 $category = $source['category'];
 $language = $source['language'];
-$do_not_index = $source['do_not_index'];
+$do_not_index = @$source['do_not_index'] ? true : false;
 
 
 ?>
@@ -107,7 +107,7 @@ $do_not_index = $source['do_not_index'];
     foreach($vals as $val){
         // default to general as we are creating
         $selected = $val == $language ? 'selected' : '';
-        $language_name = "{$language_codes[$val]} ({$val})";
+        $language_name = "{$language_codes_alpha3[$val]['eng']} ({$val})";
         echo "<option value=\"{$val}\" {$selected}>{$language_name}</val>";
     }
 

@@ -3,7 +3,6 @@
 // controls to add or removed item from list
 
 require_once('../config.php');
-require_once('../include/Authorisation.php');
 require_once('../include/NameCache.php');
 
 // create a user object for use all over
@@ -15,7 +14,7 @@ $value_id = (int)@$_REQUEST['value_id'];
 $toggle = @$_REQUEST['toggle'] && $_REQUEST['toggle'] == 'true' ? true : false;
 $can_edit = false;
 
-$can_edit = Authorisation::canEditSourceData($source_id);
+$can_edit = $user;
 
 // is it present or absent on the list
 $response = $mysqli->query("SELECT * FROM wfo_scores WHERE wfo_id = '$wfo' AND source_id = $source_id AND value_id = $value_id ");

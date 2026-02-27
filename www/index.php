@@ -2,7 +2,7 @@
     require_once('header.php');
 ?>
 
-<h1>WFO Plant List: Facet Service</h1>
+<h1>Fyllo: Text and facet data management for the World Flora Online</h1>
 
 <p class="lead">
     Faceted searching is very common in information retrieval systems such as internet shopping sites.

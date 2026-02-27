@@ -9,12 +9,17 @@
 
 
         echo '<div style="float: right;">';
-        if($user && $user['role'] == 'god'){
+        if($user){
             echo '<a class="btn btn-sm btn-outline-secondary" href="facet_edit.php?facet_id='. $facet_id .'" role="button">Edit facet</a>';
             echo '&nbsp;<a class="btn btn-sm btn-outline-danger" href="facet_delete.php?facet_id='. $facet_id .'" role="button">Delete facet</a>';
         }
         echo '</div>';
 
+
+    echo "<p><a href=\"facets.php\">Fyllo</a> 
+        → <a href=\"facets.php\">Facets</a> 
+        → {$facet['name']}</p>";
+        
     echo "<h1>{$facet['name']}</h1>";
     echo "<p class=\"lead\">{$facet['description']}";
 
@@ -40,7 +45,7 @@
         echo "<h3>{$fv['name']}</h3>";
         echo "<p><strong>Sources: </strong>";
 
-        $response = $mysqli->query("SELECT * FROM `sources` as s JOIN `facet_value_sources` as fvs on s.id = fvs.source_id WHERE fvs.`facet_value_id` = {$fv['id']} ORDER BY s.`name`;");
+        $response = $mysqli->query("SELECT * FROM `sources` as s WHERE s.`facet_value_id` = {$fv['id']} ORDER BY s.`name`;");
         $sources = $response->fetch_all(MYSQLI_ASSOC);
         $response->close();
 
@@ -48,7 +53,7 @@
             $first = true;
             foreach($sources as $s){
                 if(!$first) echo "; ";
-                echo "<a href=\"facet_source.php?source_id={$s['id']}\">{$s['name']}</a>";
+                echo "<a href=\"source.php?source_id={$s['id']}\">{$s['name']}</a>";
                 $first = false;
             }
         }else{
@@ -63,9 +68,9 @@
         // if they are god then show the edit buttons
         
         echo '<div class="col" style="text-align: right;">';
-        if($user && $user['role'] == 'god'){
+        if($user){
             echo '<a class="btn btn-sm btn-outline-secondary" href="facet_value_edit.php?facet_value_id='. $fv['id'] .'" role="button">Edit value</a>';
-            echo '&nbsp;<a class="btn btn-sm btn-outline-secondary" href="facet_source_create.php?facet_value_id='. $fv['id'] .'" role="button">Create source</a>';
+            echo '&nbsp;<a class="btn btn-sm btn-outline-secondary" href="source.php?facet_value_id='. $fv['id'] .'" role="button">Create source</a>';
             echo '&nbsp;<a class="btn btn-sm btn-outline-danger" href="#" onclick="alert(\'This currently needs to be done at the database level.\')" role="button">Delete</a>';
         }
         echo '</div>'; // end of col
@@ -73,12 +78,11 @@
         echo '</li>';
     }
 
-    // if god the can create new facets
-    if($user && $user['role'] == 'god'){
+    if($user){
         echo '<li class="list-group-item" style="text-align: right;">';
         echo '<a class="btn btn-sm btn-success" href="facet_value_create.php?facet_id='. $facet['id'] .'" role="button">Add value</a>';
         echo '</li>';
-    } // is god
+    }
 ?>
 </ul>
 

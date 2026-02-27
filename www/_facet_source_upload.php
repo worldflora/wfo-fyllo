@@ -5,7 +5,7 @@ require_once('../include/ImporterFacets.php');
 
 // the upload on the source page
 $render_upload_progress = false;
-if($_POST && isset($_FILES["input_file"]) && Authorisation::canEditSourceData($source_id) && $_FILES["input_file"]["type"] == 'text/csv'){
+if($_POST && isset($_FILES["input_file"]) && $user && $_FILES["input_file"]["type"] == 'text/csv'){
 
     // we save the file by the user id and source.
     $now = time();
@@ -53,14 +53,14 @@ if($_POST && isset($_FILES["input_file"]) && Authorisation::canEditSourceData($s
 
 <?php
 
-    if(Authorisation::canEditSourceData($source_id)){
+    if($user){
         if($render_upload_progress){
 ?>
 <div id="upload_progress_bar">
     <div class="alert alert-warning" role="alert"><strong>Uploading ... </strong></div>
 </div>
 <div>
-    <a href="facet_source.php?tab=upload-tab&source_id=<?php echo $source_id ?>">Cancel</a>
+    <a href="source.php?tab=upload-tab&source_id=<?php echo $source_id ?>">Cancel</a>
 </div>
 <script>
 // call the progress bar every second till it is complete
@@ -72,7 +72,7 @@ callProgressBar(upload_div, 'facet_source_upload_progress.php');
         }else{
 ?>
 
-<form method="POST" action="facet_source.php" enctype="multipart/form-data">
+<form method="POST" action="source.php" enctype="multipart/form-data">
     <input type="hidden" name="tab" value="upload-tab" />
     <input type="hidden" name="source_id" value="<?php echo $source_id ?>" />
 

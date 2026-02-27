@@ -2,6 +2,9 @@
 
 /*
 
+DEFUNCT CODE - KEPT HERE FOR REFERENCE
+WE NO LONGER EXPORT FROM FYLLO
+
 This used to generate the download files for a data source.
 
 It is designed to be serialized into the session between paging calls
@@ -10,7 +13,6 @@ in a similar way the ImporterFacets class is.
 */
 
 class ExporterFacets{
-
 
     public int $sourceId;
     public object $source;
@@ -27,10 +29,9 @@ class ExporterFacets{
     public ?string $csvFilePath = null; 
     public ?string $title = null;
     public bool $includeSynonyms = false;
-
+    public ?string $lastTaxonPath = null;
 
     private $db = null;
-
 
     public function __construct($source_id, $include_syns = false){
 
@@ -150,7 +151,6 @@ class ExporterFacets{
         
         return $out; 
     }
-
 
 
     /**
@@ -462,7 +462,7 @@ class ExporterFacets{
         
             fwrite($out,  "<strong class=\"{$class}\">$display_name</strong>");
             fwrite($out,  "&nbsp;[{$json->rank_s}]&nbsp;");
-            fwrite($out,  @$json->citation_micro_s);
+            fwrite($out,  @$json->citation_micro_s ? $json->citation_micro_s : '');
             fwrite($out,  "&nbsp;<a href=\"https://list.worldfloraonline.org/{$json->wfo_id_s}\" target=\"wfo_list\">{$json->wfo_id_s}</a>");
             fwrite($out,  "&nbsp;[<a href=\"https://list.worldfloraonline.org/rhakhis/ui/index.html#{$json->wfo_id_s}\" target=\"rhakhis\">Rhakhis</a>]");
 

@@ -1,7 +1,7 @@
 <?php
     require_once('header.php');
 
-    if(!$user || $user['role'] != 'god'){
+    if(!$user){
         echo '<div class="alert alert-danger" role="alert">You do not have permission to access this resource.</div>';
         require_once('footer.php');
         exit;

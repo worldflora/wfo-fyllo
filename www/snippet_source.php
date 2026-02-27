@@ -16,17 +16,8 @@ require_once('header.php');
     $source = $rows[0];
 
     // if god they edit the snippet
-    if($user && $user['role'] == 'god'){
+    if($user){
         echo '<div style="float: right;">';
-
-        // index but only if we can index
-        if(!$source['do_not_index']){
-            echo '<a class="btn btn-sm btn-success" href="snippet_source_taxa_index.php?source_id='. $source_id .'"
-            data-bs-toggle="tooltip"
-            data-bs-placement="bottom"
-            title="This will index all the taxa that are mentioned in this snippet source." 
-            role="button">Index taxa</a>';      
-        }
               
         // duplicate button - very useful!
         // we just create a hidden form with the values in and post them to the create script
@@ -69,7 +60,7 @@ require_once('header.php');
             role="tab">Summary</button>
     </li>
     <?php
-     if(Authorisation::canEditSourceData($source_id)){
+     if($user){
 ?>
 
     <!-- Properties edit -->
@@ -98,28 +89,7 @@ require_once('header.php');
     <?php
      } // can edit
 ?>
-    <!-- Download
-    <li class="nav-item" role="presentation">
-        <button 
-            class="nav-link <?php echo @$_REQUEST['tab'] == "download-tab" ? 'active' : '' ?>"
-            id="download-tab"
-            data-bs-toggle="tab"
-            data-bs-target="#download"
-            type="button"
-            role="tab">Download</button>
-    </li>
-    -->
 
-    <?php
-     if(Authorisation::isGod()){
-?>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button"
-            role="tab">Users</button>
-    </li>
-    <?php
-     } // is god
-?>
 </ul>
 
 <div class="tab-content" id="myTabContent">
@@ -195,7 +165,7 @@ require_once('header.php');
     </table>
     </div>
     <?php
-     if(Authorisation::canEditSourceData($source_id)){
+     if($user){
 ?>
 
 
@@ -220,34 +190,7 @@ require_once('header.php');
     <?php
      } // can edit
 ?>
-    <!-- DOWNLOAD -->
-    <!--
-    <div 
-        class="tab-pane fade <?php echo @$_REQUEST['tab'] == "download-tab" ? 'show active' : '' ?>"
-        id="download" 
-        role="tabpanel">
-        <p class="lead">
-            Download a copy of the snippets in this data source.
-        </p>
-        <p>
-            This will reconstruct the file that was used to upload the snippets data.
-            It will only contain the rows that had valid WFO IDs in them and were successfully imported.
-        </p>
-        <p>
-            <a class="btn btn-primary" href="snippet_source_download.php?source_id=<?php echo $source_id ?>">Download now</a>
-        </p>
-    </div>
-    -->
-    <?php
-     if(Authorisation::isGod()){
-?>
-    <!-- USERS -->
-    <div class="tab-pane fade" id="users" role="tabpanel">
-        <?php require_once('facet_source_users.php'); ?>
-    </div>
-    <?php
-     } // is god
-?>
+
 </div>
 
 

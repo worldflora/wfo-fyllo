@@ -5,7 +5,7 @@ require_once('../include/ImporterSnippets.php');
 
 // the upload on the source page
 $render_upload_progress = false;
-if($_POST && isset($_FILES["input_file"]) && Authorisation::canEditSourceData($source_id) && $_FILES["input_file"]["type"] == 'text/csv'){
+if($_POST && isset($_FILES["input_file"]) && $user && $_FILES["input_file"]["type"] == 'text/csv'){
 
     // we save the file by the user id and source.
     $now = time();
@@ -52,7 +52,7 @@ if($_POST && isset($_FILES["input_file"]) && Authorisation::canEditSourceData($s
 
 <?php
 
-    if(Authorisation::canEditSourceData($source_id)){
+    if($user){
         if($render_upload_progress){
 ?>
 <div id="upload_progress_bar">

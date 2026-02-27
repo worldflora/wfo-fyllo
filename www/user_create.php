@@ -1,8 +1,13 @@
 <?php
     require_once('header.php');
 
-    // nobody but the gods
-    if(!$user || $user['role'] != 'god'){
+    // You must be logged in or there must be no users - prevent sawing off our own branch
+    $response = $mysqli->query("SELECT count(*) as n FROM `users`");
+    $row = $response->fetch_assoc();
+    $user_count = $row['n'];
+
+
+    if(!$user && $user_count > 0){
         echo '<div class="alert alert-danger" role="alert">You do not have permission to access this resource.</div>';
         require_once('footer.php');
         exit;

@@ -1,39 +1,7 @@
 <?php
     require_once('header.php');
-
-    // if god the can create new facets
-    if($user && $user['role'] == 'god'){
-
-        echo '<div style="float: right;">';
-
-        // if god the can index source labels
-        echo '<a class="btn btn-sm btn-success" href="facet_sources_index.php"
-            data-bs-toggle="tooltip"
-            data-bs-placement="bottom"
-            title="Update the index with the label info for the facet sources." 
-            role="button">Index Facet Source Labels</a>';
-
-        echo '&nbsp;<a class="btn btn-sm btn-success" href="facets_index.php" 
-            data-bs-toggle="tooltip"
-            data-bs-placement="bottom"
-            title="Update the index with the label info for facets and facet values." 
-        role="button">Index Facet Labels</a>';
-
-        // if god the can index source labels
-        echo '&nbsp;<a class="btn btn-sm btn-success" href="index_score_metadata.php"
-            data-bs-toggle="tooltip"
-            data-bs-placement="bottom"
-            title="Update index with metadata on any scores since last indexing run." 
-        role="button">Index Scores Metadata</a>';
-
-        echo '</div>';
-    
-    } // is god
- 
-
 ?>
-
-
+<p><a href="index.php">Fyllo</a> → Facets</p>
 <h1>Facets</h1>
 
 <p class="lead">
@@ -60,7 +28,7 @@
     }
 
     // if god the can create new facets
-    if($user && $user['role'] == 'god'){
+    if($user){
         echo '<li class="list-group-item" style="text-align: right;">';
         echo '<a class="btn btn-sm btn-success" href="facet_create.php" role="button">Add facet</a>';
         echo '</li>';

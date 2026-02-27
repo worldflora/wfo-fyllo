@@ -9,9 +9,9 @@ class ImporterSnippets{
     public ?int $created = null;
     public $file = null;
     public $header = null;
+    public string $oid;
     
-
-    public function __construct($input_file_path, $source_id, $offset = 0){
+    public function __construct($input_file_path, $oid, $source_id, $offset = 0){
 
         global $mysqli;
 
@@ -19,6 +19,7 @@ class ImporterSnippets{
         
         $this->filePath = $input_file_path;
         $this->sourceId = (int)$source_id;
+        $this->oid = $oid;
         $this->offset = $offset;
 
         $this->file = fopen($this->filePath, 'r');
@@ -32,7 +33,7 @@ class ImporterSnippets{
         
     public function __sleep(){
         fclose($this->file);
-        return array('filePath', 'sourceId', 'offset', 'created', 'header');
+        return array('filePath', 'sourceId', 'oid', 'offset', 'created', 'header');
     }
     
     public function __wakeup(){
@@ -43,7 +44,7 @@ class ImporterSnippets{
     public function seek($line){
         rewind($this->file);
         for ($i=0; $i < $line; $i++) {
-            fgetcsv($this->file);
+            fgetcsv($this->file, escape: "\\");
         }
     }
 
@@ -53,7 +54,7 @@ class ImporterSnippets{
 
         for ($i=0; $i < $page_size; $i++) { 
 
-            $row = fgetcsv($this->file);
+            $row = fgetcsv($this->file, escape: "\\");
 
             // capture the header if there is one
             if($this->offset == 0){
@@ -76,7 +77,8 @@ class ImporterSnippets{
             $this->offset++;
 
             if(!$row){
-                $mysqli->query("UPDATE sources SET harvest_last = now() WHERE id = {$this->sourceId};");
+                $mysqli->query("UPDATE sources SET last_import = now(), `oid` = '$this->oid' WHERE id = {$this->sourceId};");
+                unlink($this->filePath);
                 return $i;
             } 
 

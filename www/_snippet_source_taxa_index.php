@@ -1,6 +1,6 @@
 <?php
 
-// FIXME - MUST BE GOD TO DO THIS
+// DELETE ME
 
 require_once('../config.php');
 require_once('../include/SolrIndex.php');

@@ -3,7 +3,7 @@
     require_once('../include/language_codes.php');
 
     // nobody but the gods
-    if(!$user || $user['role'] != 'god'){
+    if(!$user){
         echo '<div class="alert alert-danger" role="alert">You do not have permission to access this resource.</div>';
         require_once('footer.php');
         exit;
@@ -126,7 +126,7 @@
     foreach($vals as $val){
         // default to general as we are creating
         $selected = $val == $language ? 'selected' : '';
-        $language_name = "{$language_codes[$val]} ({$val})";
+        $language_name = "{$language_codes_alpha3[$val]['eng']} ({$val})";
         echo "<option value=\"{$val}\" {$selected}>{$language_name}</val>";
     }
 

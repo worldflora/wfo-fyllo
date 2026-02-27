@@ -79,7 +79,7 @@ document.getElementById("state_search").onkeyup = function(e) {
         echo "<li>";
         echo "<a href=\"facet_values.php?facet_id={$row['facet_id']}\">{$row['facet_value_name']}</a>";
         echo "<strong> from </strong>";
-        echo "<a href=\"facet_source.php?source_id={$row['source_id']}\">{$row['source_name']}</a>";
+        echo "<a href=\"source.php?source_id={$row['source_id']}\">{$row['source_name']}</a>";
         echo "</li>";
 
     }
@@ -105,7 +105,7 @@ while($row = $response->fetch_assoc()){
     if($cat != $row['category'] || $lang != $row['language']){
         $cat = $row['category'];
         $lang = $row['language'];
-        echo "<h3>" . ucfirst($cat) . " - ". $language_codes[$lang] ."</h3>";
+        echo "<h3>" . ucfirst($cat) . " - ". $language_codes_alpha3[$lang]['eng'] ."</h3>";
     }
 
     echo "<p><a href=\"snippet_source.php?source_id={$row['source_id']}\">{$row['source_name']}</a></p>";
@@ -164,7 +164,7 @@ while($row = $response->fetch_assoc()){
             // now the text snippets
             for ($i=0; $i < count($index_name->snippet_text_bodies_txt); $i++) { 
                     
-                echo "<h3>" . ucfirst($index_name->snippet_text_categories_ss[$i]) . " - ". $language_codes[$index_name->snippet_text_languages_ss[$i]] ."</h3>";
+                echo "<h3>" . ucfirst($index_name->snippet_text_categories_ss[$i]) . " - ". $language_codes_alpha3[$index_name->snippet_text_languages_ss[$i]]['eng'] ."</h3>";
                 echo "<p>{$index_name->snippet_text_name_ids_ss[$i]}</p>";
                 echo "<p>{$index_name->snippet_text_ids_ss[$i]}</p>";
                 echo "<p>{$index_name->snippet_text_bodies_txt[$i]}</p>";

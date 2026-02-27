@@ -1,6 +1,6 @@
 <?php
 
-// FIXME - MUST BE GOD TO DO THIS
+// DELETE ME - KEPT FOR REFERENCE TILL FUNCTIONALITY IS PORTED TO AIRFLOW
 
 require_once('../config.php');
 require_once('../include/SolrIndex.php');
@@ -69,7 +69,7 @@ if(@$_GET['clean_up'] == 'remaining_taxa'){
     echo "<p>Indexing complete. Going back to source page.</p>";
 
     // finall head back to the source page
-    echo "<script>window.location = \"facet_source.php?source_id={$source_id}\"</script>";
+    echo "<script>window.location = \"source.php?source_id={$source_id}\"</script>";
 
 }else{
 

@@ -4,33 +4,31 @@ class ImporterFacets{
 
 
     public string $filePath;
-    public bool   $overwrite;
     public int $sourceId;
     public int $facetValueId;
     public string $offset;
     public ?int $created = null;
     public $file = null;
     public $header = null;
+    public string $oid;
     
 
-    public function __construct($input_file_path, $overwrite, $source_id, $facet_value_id, $offset = 0){
+    public function __construct($input_file_path, $oid, $source_id, $facet_value_id, $offset = 0){
 
         global $mysqli;
 
         $this->created = time();
         
         $this->filePath = $input_file_path;
-        $this->overwrite = $overwrite;
         $this->sourceId = $source_id;
         $this->facetValueId = $facet_value_id;
         $this->offset = $offset;
+        $this->oid = $oid;
 
         $this->file = fopen($this->filePath, 'r');
 
-        // if they are choosing to remove then remove
-        if($this->overwrite){
-            $mysqli->query("DELETE FROM wfo_scores WHERE source_id = $this->sourceId;");
-        }
+        // strip it all out before we start
+        $mysqli->query("DELETE FROM wfo_scores WHERE source_id = $this->sourceId;");
 
         $this->seek($this->offset);
 
@@ -38,7 +36,7 @@ class ImporterFacets{
         
     public function __sleep(){
         fclose($this->file);
-        return array('filePath', 'overwrite', 'sourceId', 'header' ,'facetValueId', 'offset', 'created');
+        return array('filePath', 'oid', 'sourceId', 'header' ,'facetValueId', 'offset', 'created');
     }
     
     public function __wakeup(){
@@ -49,7 +47,7 @@ class ImporterFacets{
     public function seek($line){
         rewind($this->file);
         for ($i=0; $i < $line; $i++) {
-            fgetcsv($this->file);
+            fgetcsv($this->file, escape: "\\");
         }
     }
 
@@ -60,12 +58,12 @@ class ImporterFacets{
   
         for ($i=0; $i < $page_size; $i++) { 
 
-            $row = fgetcsv($this->file);
+            $row = fgetcsv($this->file, escape: "\\");
 
             // capture the header if there is one
             if($this->offset == 0){
 
-                if(preg_match('/^wfo-[0-9]{10}$/', $row[0])){
+                if(preg_match('/^wfo-[0-9]{10}$/', $row[0] ?? '')){
                     // we have a wfo-id in the first column so we know this isn't a header row
                     // make one up
                     $this->header = array();
@@ -83,7 +81,9 @@ class ImporterFacets{
             $this->offset++;
 
             if(!$row){
-                $mysqli->query("UPDATE sources SET harvest_last = now() WHERE id = {$this->sourceId};");
+                // log the import
+                $mysqli->query("UPDATE sources SET last_import = now(), `oid` = '$this->oid' WHERE id = {$this->sourceId};");
+                unlink($this->filePath);
                 return $i;
             } 
 
@@ -91,7 +91,7 @@ class ImporterFacets{
             $wfo_id = $row[0];
             
             // must be correct format
-            if(!preg_match('/^wfo-[0-9]{10}$/', $wfo_id)) continue;
+            if(!preg_match('/^wfo-[0-9]{10}$/', $wfo_id ?? '')) continue;
 
             // do nothing if it is already there
             $response = $mysqli->query("SELECT * FROM wfo_scores WHERE wfo_id = '$wfo_id' AND source_id = {$this->sourceId};");

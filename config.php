@@ -9,7 +9,7 @@
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+error_reporting(E_ALL);
 //error_reporting(E_ALL);
 session_start();
 
@@ -46,3 +46,15 @@ if ($mysqli->connect_error) {
 if (!$mysqli->set_charset("utf8mb4")) {
   echo printf("Error loading character set utf8: %s\n", $mysqli->error);
 }
+
+// definitions of export types available
+$export_formats = array();
+$export_formats[] = (Object)array(
+    'id' => 'csv', 'name' => 'CSV Table', 'description' => 'Comma separated values in a UTF-8 encoded text file.'
+);
+$export_formats[] = (Object)array(
+    'id' => 'html', 'name' => 'HTML document', 'description' => 'The list will be displayed as a hierachical list suitable for proof reading.'
+);
+$export_formats[] = (Object)array(
+    'id' => 'coldp', 'name' => 'Catalogue of Life Data Package', 'description' => 'A data package suitable for submission to GBIF ChecklistBank'
+);

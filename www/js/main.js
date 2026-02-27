@@ -54,13 +54,13 @@ function runGraphQuery(query, variables, giveBack) {
 }
 
 
-function replaceNameListItem(wfo, source_id, value_id, editable) {
+function replaceNameListItem(wfo) {
 
     // firstly see if we have the name in localstorage
     let name_json = localStorage.getItem(wfo);
     if (name_json) {
         let name = JSON.parse(name_json);
-        let li = getNameListItem(name, source_id, value_id, editable = true);
+        let li = getNameListItem(name);
         let old_li = document.getElementById(wfo);
         old_li.replaceWith(li);
         return;
@@ -94,7 +94,7 @@ function replaceNameListItem(wfo, source_id, value_id, editable) {
     }, (response) => {
 
         let name = response.data.taxonNameById;
-        let li = getNameListItem(name, source_id, value_id, editable = true);
+        let li = getNameListItem(name);
         let old_li = document.getElementById(wfo);
         old_li.replaceWith(li);
         localStorage.setItem(wfo, JSON.stringify(name));
@@ -108,26 +108,11 @@ function replaceNameListItem(wfo, source_id, value_id, editable) {
  * Returns a Dom Node of a list item
  * representing the name object
  * @param {Object} name 
- * @param {Boolean} editable 
  */
-function getNameListItem(name, source_id, value_id, editable = false) {
+function getNameListItem(name) {
 
     const li = document.createElement("li");
     li.setAttribute('class', 'list-group-item');
-
-    // add / remove buttons on the right
-    if (editable) {
-        const col_right = document.createElement("div");
-        li.appendChild(col_right);
-        col_right.style.float = 'right';
-        col_right.style.textAlign = 'right';
-        col_right.style.maxWidth = '20%';
-        col_right.innerHTML = "loading...";
-
-        fetch(`list_widget.php?wfo=${name.id}&source_id=${source_id}&value_id=${value_id}`)
-            .then(x => x.text())
-            .then(y => col_right.innerHTML = y);
-    }
 
     // plant details
     const col_left = document.createElement("div");
@@ -203,6 +188,7 @@ function callProgressBar(div, file_name) {
             console.log(json.message);
             div.innerHTML = `<div class="alert alert-${json.level}" role="alert">${json.message}</div>`;
             if (!json.complete) callProgressBar(div, file_name);
+            else window.location = 'source.php?tab=import&source_id=' + json.source_id;
         });
     listChanged = true;
 }
@@ -254,7 +240,7 @@ function nameLookup(e, nameList, sourceId, valueId) {
 
             response.data.taxonNameSuggestion.forEach(name => {
                 //console.log(name);
-                nameList.appendChild(getNameListItem(name, sourceId, valueId, sourceId != null));
+                nameList.appendChild(getNameListItem(name));
             });
 
             // if we haven't found anything then put a message in
