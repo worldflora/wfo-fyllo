@@ -37,10 +37,9 @@
 
     foreach($facet_values as $fv){
         
-        echo '<li class="list-group-item">';
-        echo "<a id=\"facet_value_{$fv['id']}\" ></a>";
+        echo '<li class="list-group-item" >';
+        echo "<a name=\"fv{$fv['id']}\" style=\"scroll-margin-top: 100px;\" />";
         echo '<div class="row">';
-        
         echo '<div class="col">';
         echo "<h3>{$fv['name']}</h3>";
         echo "<p><strong>Sources: </strong>";

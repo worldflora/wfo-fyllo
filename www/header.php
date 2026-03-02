@@ -5,7 +5,6 @@
     // create a user object for use all over
     $user = @$_SESSION['user'] ? $_SESSION['user'] : null;
     
-
 ?>
 
 <html lang="en">
@@ -38,20 +37,20 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav me-auto mb-2 mb-md-0">
-                    <!--
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'sources.php' ? 'active': '';  ?> "
-                            href="sources.php">Sources</a>
-                    </li>
--->
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'facets.php' ? 'active': '';  ?>"
-                            aria-current="page" href="facets.php">Facets</a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'snippets.php' ? 'active': '';  ?>"
                             aria-current="page" href="snippets.php">Snippets</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'facets.php' ? 'active': '';  ?>"
+                            aria-current="page" href="facets.php">Facets</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'sources.php' ? 'active': '';  ?> "
+                            href="sources.php">Sources</a>
+                    </li>
+   
                     <li class="nav-item">
                         <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index_state.php' ? 'active': '';  ?> "
                             href="index_state.php">Indexed</a>
