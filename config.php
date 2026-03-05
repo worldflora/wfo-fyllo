@@ -15,10 +15,10 @@ session_start();
 
 require_once('../../wfo_facet_secrets.php'); // things we don't put in github
 
-// Location of the solr server
-define('SOLR_QUERY_URI', $solr_query_uri); // from wfo_secrets.php
-define('SOLR_USER', $solr_user); // from wfo_secrets.php
-define('SOLR_PASSWORD', $solr_password); // from wfo_secrets.php
+// Location of the solr server - we should not know about SOLR!
+//define('SOLR_QUERY_URI', $solr_query_uri); // from wfo_secrets.php
+//define('SOLR_USER', $solr_user); // from wfo_secrets.php
+//define('SOLR_PASSWORD', $solr_password); // from wfo_secrets.php
 
 define('PLANT_LIST_GRAPHQL_URI', $plant_list_graphql_uri);
 

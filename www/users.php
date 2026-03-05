@@ -40,6 +40,9 @@
     }
 
     echo '<li class="list-group-item" style="text-align: right;">';
+
+    echo '<button class="btn btn-sm btn-outline-secondary" onclick="localStorage.clear();" >Clear Cache</button>&nbsp;';
+    
     echo '<a class="btn btn-sm btn-success" href="user_create.php" role="button">Add user</a>';
     echo '</li>';
 

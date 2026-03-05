@@ -8,4 +8,4 @@ $wfo_id = $_GET['wfo_id'];
 
 WfoFacets::indexTaxon($wfo_id);
 
-header('Location: index_state.php?wfo_id=' . $wfo_id);
+header('Location: taxa.php?wfo_id=' . $wfo_id);

@@ -10,6 +10,8 @@ class WfoFacets{
 
 
     public static $facetsCache = array();
+
+    public static $requiredFields = array('id', 'wfo_id_s', 'classification_id_s', 'full_name_string_html_s', 'role_s', 'parent_id_s', 'accepted_id_s', 'child_taxon_count_i', 'name_ancestor_path');
     
 
     /**
@@ -330,6 +332,9 @@ class WfoFacets{
     // not really a tree but a path
     public static function getTaxonTree($wfo_id){
 
+        // FIXME - PORT THIS TO USE THE GRAPHQL API RATHER THAN CALL 
+        // SOLR.
+
         $index = new SolrIndex();
         $tree = array();
         $tree['target']  = null;
@@ -343,7 +348,8 @@ class WfoFacets{
 
             $solr_query = array(
                 'query' => "wfo_id_deduplicated_ss:$wfo_id",
-                'filter' => array("classification_id_s:" . WFO_DEFAULT_VERSION)
+                'filter' => array("classification_id_s:" . WFO_DEFAULT_VERSION),
+                'fields' => WfoFacets::$requiredFields
             );
             $solr_response = $index->getSolrResponse($solr_query);
             if(isset($solr_response->response->docs) && $solr_response->response->docs){
@@ -363,9 +369,12 @@ class WfoFacets{
         $query = array(
             'query' => "name_ancestor_path:{$tree['target']->name_ancestor_path}", // everything in this tree of names
             "limit" => 10000, // big limit - not run out of memory theoretically could fail on stupid numbers of synonyms
-            'filter' => array("classification_id_s:{$tree['target']->classification_id_s}"// filtered by this classification
-        ) );
+            'filter' => array("classification_id_s:{$tree['target']->classification_id_s}"),// filtered by this classification
+            'fields' => WfoFacets::$requiredFields
+        );
+        
         $docs = $index->getSolrDocs((object)$query);
+
 
         // get all the docs indexed by their ids
         foreach($docs as $doc){
@@ -402,6 +411,8 @@ class WfoFacets{
      * commit.
      * 
      */
+    /*
+    // should be in airflow
     public static function indexFacets(){
 
         global $mysqli;
@@ -456,7 +467,10 @@ class WfoFacets{
  //       print_r($response);
 
     }
+   */
 
+    /*
+    should be in airflow
     public static function indexFacetSources(){
 
         global $mysqli;
@@ -486,7 +500,9 @@ class WfoFacets{
      //   print_r($solr_docs);
 
     }
+     */
 
+    /*
     public static function indexSnippetSources(){
 
         global $mysqli;
@@ -526,6 +542,7 @@ class WfoFacets{
 
     }
 
+    */
     public static function getFacetsFromDoc($solrDoc){
 
         $index = new SolrIndex();
@@ -560,15 +577,17 @@ class WfoFacets{
         if(!$out) return $out;
 
         // populate it with names
-        $query = array('query' => "id:(" . implode(' OR ', array_keys($out)) . ")");
+        $query = array(
+            'query' => "id:(" . implode(' OR ', array_keys($out)) . ")"
+            );
         $facet_docs = $index->getSolrDocs((object)$query);
         foreach ($facet_docs as $fd){
            $meta = json_decode($fd->json_t);
 
            $out[$fd->id]['meta']['id'] = $meta->id;
            $out[$fd->id]['meta']['name'] = $meta->name;
-           $out[$fd->id]['meta']['description'] = trim($meta->description);
-           $out[$fd->id]['meta']['link_uri'] = trim($meta->link_uri);
+           $out[$fd->id]['meta']['description'] = trim($meta->description ?? '');
+           $out[$fd->id]['meta']['link_uri'] = trim($meta->link_uri ?? '');
 
            foreach (array_keys($out[$fd->id]['facet_values']) as $fv_key) {
                 
@@ -613,6 +632,8 @@ class WfoFacets{
         return $out;
 
     }
+
+    /*
 
     public static function indexScores(){
 
@@ -683,7 +704,8 @@ class WfoFacets{
         // need to include 
 
     }
-
+    */
+    /*
     public static function indexSnippets(){
 
         global $mysqli;
@@ -755,4 +777,5 @@ class WfoFacets{
         // need to include 
 
     }
+    */
 }

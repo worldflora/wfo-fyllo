@@ -1,6 +1,5 @@
 <?php
     require_once('header.php');
-    require_once('../include/SolrIndex.php');
     require_once('../include/WfoFacets.php');
     require_once('../include/language_codes.php');
 
@@ -9,8 +8,7 @@
 
 <h1>Index State</h1>
 <p class="lead">
-    Here you can see the relationship between facets scored to names and what this translate to in the current
-    index. Search for a name and click on 'inspect'.
+    Here you can see the relationship between facets scored to names and what this will translate to in and index. Search for a name and click on 'inspect'.
 </p>
 
 <form method="POST" action="#">
@@ -36,8 +34,14 @@ document.getElementById("state_search").onkeyup = function(e) {
     } else { // end no wfo_id specified
 
     // load the complete record from solr
-    $solr = new SolrIndex();
-    $index_name = $solr->getDoc($_GET['wfo_id']);
+   
+    
+    
+    $tree = WFOFacets::getTaxonTree($_GET['wfo_id']);
+    
+//    echo '<pre>';
+  //  print_r($tree);
+    //echo '</pre>';
 
     echo "<p style=\"text-align: right;\"><a href=\"https://list.worldfloraonline.org/{$index_name->wfo_id_s}\" target=\"wfo\">{$index_name->wfo_id_s} ↗</a></p>";
     echo "<h1 style=\"border-bottom: solid 1px black;\">{$index_name->full_name_string_html_s}</h1>";
@@ -45,9 +49,8 @@ document.getElementById("state_search").onkeyup = function(e) {
     // the facet services stuff comes on the left
     echo '<div class="row align-items-start">';
     echo '<div class="col">';
-    echo '<h2  style="border-bottom: solid 1px black;">Facet Service</h2>';
+    echo '<h2  style="border-bottom: solid 1px black;">Values in Fyllo</h2>';
     echo '<p>These are the values for <strong>just this name</strong> here in the facet service.</p>';
-
 
     $sql = "SELECT 
         f.id as facet_id,
@@ -77,7 +80,7 @@ document.getElementById("state_search").onkeyup = function(e) {
         }
 
         echo "<li>";
-        echo "<a href=\"facet_values.php?facet_id={$row['facet_id']}\">{$row['facet_value_name']}</a>";
+        echo "<a href=\"facet_values.php?facet_id={$row['facet_id']}#fv{$row['facet_value_id']}\">{$row['facet_value_name']}</a>";
         echo "<strong> from </strong>";
         echo "<a href=\"source.php?source_id={$row['source_id']}\">{$row['source_name']}</a>";
         echo "</li>";
@@ -89,12 +92,11 @@ document.getElementById("state_search").onkeyup = function(e) {
 
     // now the text snippets
     $sql = "SELECT 
-	s.id, s.body, ss.category, ss.`language`, so.`name` as source_name, so.id as source_id 
+	s.id, s.body, so.`snippet_category`, so.`snippet_language`, so.`name` as source_name, so.id as source_id 
 FROM wfo_facets.snippets as s 
-JOIN snippet_sources as ss on s.source_id = ss.source_id
-JOIN sources as so on ss.source_id = so.id
+JOIN sources as so on s.source_id = so.id
 WHERE s.wfo_id = '{$index_name->wfo_id_s}'
-order by category, `language`;";
+order by so.snippet_category, so.snippet_language;";
 
 $response = $mysqli->query($sql);
 
@@ -121,19 +123,19 @@ while($row = $response->fetch_assoc()){
 <div class="col" style="border-left: solid 1px black; width: 50%;">
     <h2 style="border-bottom: solid 1px black;">Associated Index</h2>
     <p>
-        <a href="index_index.php?wfo_id=<?php echo $index_name->wfo_id_s ?>"><button style="float: right;" type="button"
-                class="btn btn-sm btn-outline-primary">Index now</button></a>
         These are the <strong>calculated values</strong> for this <strong>taxon</strong> in the index.
-    </p>
-
     <?php 
 
         if($index_name->role_s != 'accepted'){
-            echo "<p>This name is a '{$index_name->role_s}' name so doesn't have facets in the index.</p>";
+            echo " This name is a '{$index_name->role_s}' name so doesn't have facets in the index.";
         }
-
-       // echo "<pre>";
-       // print_r($index_name);
+         
+        if(isset($index_name->facets_last_indexed_i)){
+            $date = date(DATE_ATOM, $index_name->facets_last_indexed_i);
+            echo "<br/>Last indexed on: {$date}</p>";
+        }else{
+            echo '<br/>Never indexed. </p>';
+        }
 
         $facets = WfoFacets::getFacetsFromDoc($index_name);
 

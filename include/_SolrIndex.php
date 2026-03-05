@@ -15,8 +15,7 @@ class SolrIndex{
         }else{
             $record_id = $id;
         }
-
-        // load it by id
+        // no subset specified so we can fetch using the quick method
         $solr_query_uri = SOLR_QUERY_URI . '/get?id=' . trim($record_id);
         $ch = $this->getCurlHandle($solr_query_uri);
         $response = $this->runCurlRequest($ch);
@@ -34,9 +33,6 @@ class SolrIndex{
 
         $solr_query_uri = SOLR_QUERY_URI . '/update?commit='. ($commit ? 'true': 'false');
         $response = $this->curlPostJson($solr_query_uri, json_encode($solr_docs));
-
-        
-
         return $response;
 
     }

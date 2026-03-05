@@ -139,7 +139,7 @@ function getNameListItem(name) {
 
     // if it is an accepted name then we add a link to view the indexed value
     if (name.role == 'accepted')
-        status_span.innerHTML = status_span.innerHTML + `&nbsp;:&nbsp;<a href="index_state.php?wfo_id=${name.id}">inspect</a>`;
+        status_span.innerHTML = status_span.innerHTML + `&nbsp;:&nbsp;<a href="taxa.php?wfo_id=${name.id}">inspect</a>`;
 
     // add the accepted name if we have it
     if (name.currentPreferredUsage && name.id != name.currentPreferredUsage.hasName.id) {
@@ -157,7 +157,7 @@ function getNameListItem(name) {
 
         const span = document.createElement("span");
         p.appendChild(span);
-        span.innerHTML = `<strong>&nbsp;:&nbsp;</strong><a href="index_state.php?wfo_id=${name.currentPreferredUsage.hasName.id}">inspect</a>`;
+        span.innerHTML = `<strong>&nbsp;:&nbsp;</strong><a href="taxa.php?wfo_id=${name.currentPreferredUsage.hasName.id}">inspect</a>`;
     }
 
     // add the path in if we have it

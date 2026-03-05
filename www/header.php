@@ -45,16 +45,18 @@
                         <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'facets.php' ? 'active': '';  ?>"
                             aria-current="page" href="facets.php">Facets</a>
                     </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'taxa.php' ? 'active': '';  ?> "
+                            href="taxa.php">Taxa</a>
+                    </li>
 
                     <li class="nav-item">
                         <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'sources.php' ? 'active': '';  ?> "
                             href="sources.php">Sources</a>
                     </li>
    
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index_state.php' ? 'active': '';  ?> "
-                            href="index_state.php">Indexed</a>
-                    </li>
+
                     <?php 
                         if($user){
                             ?>
