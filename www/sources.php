@@ -73,8 +73,12 @@
 </script>
 <form method="GET" action="sources.php">
     <input type="hidden" name="current_page" id="current_page" value="<?php echo $page ?>" />
-    <h1>Sources</h1>
 
+    <p><a href="index.php">Fyllo</a> → Sources</p>
+    <h1>Sources</h1>
+    <p class="lead">
+        These are all the sources in the system, both for facet values and snippets.
+    </p>
     <ul class="list-group">
         <li class="list-group-item">
             <div class="row">

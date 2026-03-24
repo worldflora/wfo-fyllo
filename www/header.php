@@ -47,14 +47,16 @@
                     </li>
                     
                     <li class="nav-item">
+                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'sources.php' ? 'active': '';  ?> "
+                            href="sources.php">Sources</a>
+                    </li>
+
+                    <li class="nav-item">
                         <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'taxa.php' ? 'active': '';  ?> "
                             href="taxa.php">Taxa</a>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'sources.php' ? 'active': '';  ?> "
-                            href="sources.php">Sources</a>
-                    </li>
+
    
 
                     <?php 

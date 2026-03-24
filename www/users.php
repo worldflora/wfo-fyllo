@@ -13,6 +13,7 @@
     }
 
 ?>
+<p><a href="index.php">Fyllo</a> → Users</p>
 <h1>Users</h1>
 <p class="lead">
     These are the users registered with the system. There are no roles or anything complex. Anyone who logs in has rights to do anything that can be done.

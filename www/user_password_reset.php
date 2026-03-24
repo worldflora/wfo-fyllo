@@ -35,7 +35,7 @@
 
 ?>
 
-
+<p><a href="index.php">Fyllo</a> → <a href="users.php">Users</a>  → Password</p>
 <h1>Reset Password for '<?php echo $username; ?>'</h1>
 <p class="lead">
 <form method="POST" action="user_password_reset.php">
