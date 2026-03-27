@@ -1,0 +1,596 @@
+<?php
+
+require_once('../config.php');
+
+$facets_cache = array(); // used to prevent calling for facets for higher level taxa repeatedly.
+
+// this returns facet and snippet values for taxa that are provided as 'taxon graphs' in json
+$post_body = file_get_contents('php://input');
+
+if($post_body || $_GET){
+
+    // we are serving data so check they have a bearer token that matches
+    // the correct token is stored in the config secrets witht he github token and db credentials.
+    if(get_bearer_token() != $api_bearer_token){
+        http_response_code(401);
+        echo "Unauthorized: You must provide a bearer token!";
+        exit;
+    }
+
+    if($post_body){
+        return_taxon_values(json_decode($post_body));
+    }else{
+        if(isset($_GET['offset'])){
+            $offset = (int)$_GET['offset']; // maybe zero
+            return_last_modified((int)$offset);
+        }elseif(isset($_GET['metadata'])){
+            if($_GET['metadata'] == 'sources'){
+                return_sources_metadata();
+            }else{
+                return_facet_metadata();
+            }   
+        }
+    }
+}else{
+    // no data request so just render documentation
+    render_documentation_page();
+}
+
+
+function return_taxon_values($taxon_graphs){
+
+    $out = array();
+
+    $limiter = 0;
+    foreach ($taxon_graphs as $taxon_graph) {
+        $out[] = get_taxon_values($taxon_graph);
+        $limiter++;
+        if($limiter > 1000) break;
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($out);
+    exit;
+
+}
+
+/**
+ * The function where we actually do the 
+ * business of fetching the values.
+ * 
+ */
+function get_taxon_values($graph){
+
+    $doc = (object)array(); // we will return this 
+
+    // tag it with the id of the taxon we are describing.
+    $doc->taxon = $graph->taxon[0];
+    $doc->classification = $graph->classification;
+
+    // BUILD THE FACETS FIRST
+
+    $facets = array();
+
+    // do the taxon itself
+    $facets = get_facets_for_wfo_ids($graph->taxon, 'direct');
+
+    // work down the path
+    foreach ($graph->path as $anc) {
+        $facets = array_merge($facets, get_facets_for_wfo_ids($anc, 'ancestor'));
+    }
+
+    // do the synonyms
+    foreach ($graph->synonyms as $syn) {
+        $facets = array_merge($facets, get_facets_for_wfo_ids($syn, 'synonym'));
+    }
+
+    // convert the data for the facets into a document for the taxon
+    /*
+        wfo-f-*_ss A faceting field. * is the db id of the facet. Contains the values of this facet for this taxon in the form wfo-fv-*. This is the id of the facet document containing the metadata for the facet (see below). Adding "_provenance_ss" to the end give the field containing the provenance in this document.
+        wfo-fv-*_provenance_ss A string that can be parsed to give the provenance of the facet value scoring. * is the db id of the facet value.
+        wfo-f-*_t The text of the facet values present in this taxon. Enables freetext search by facet. Not used for rendering.
+    
+                        [facet_id] => 5
+                    [facet_name] => Life Form
+                    [heritable] => 1
+                    [facet_value_id] => 1887
+                    [facet_value_name] => Annual
+                    [source_id] => 1554
+                    [source_name] => WCVP Life Form: Annual
+                    [scored_via] => synonym
+                    [wfo_id] => wfo-0000540604
+        */
+
+    foreach ($facets as $facet) {
+
+        // is there a field to hold the data for this facet?
+        $facet_field_name = "wfo-f-{$facet['facet_id']}_ss";
+        $provenance_field_name = "wfo-fv-{$facet['facet_value_id']}_provenance_ss";
+        $text_field_name = "wfo-f-{$facet['facet_id']}_t";
+        if(!isset($doc->{$facet_field_name})){
+            $doc->{$facet_field_name} = array();
+            $doc->{$provenance_field_name} = array();
+            $doc->{$text_field_name} = $facet['facet_name'] . " : ";
+        }
+
+        // if we haven't added it already add the facet value
+        $facet_value_tag = 'wfo-fv-' . $facet['facet_value_id'];
+        if(!in_array( $facet_value_tag, $doc->{$facet_field_name})){
+            $doc->{$facet_field_name}[] =  $facet_value_tag;
+            $doc->{$text_field_name} .= ' ' . $facet['facet_value_name'];
+        } 
+
+        // add the provenance for this facet value
+        // name_scored-source_scored_id-via a synonym/ancestor/direct
+        $doc->{$provenance_field_name}[] = "{$facet['wfo_id']}-s-{$facet['source_id']}-{$facet['scored_via']}";
+
+
+    }
+
+    // ADD IN THE SNIPPETS
+    /*
+        snippet_text_categories_ss The catagory (subject) of the snippet. e.g. morphology or distribution.
+        snippet_text_languages_ss The lanuage the snippet is in.
+        snippet_text_name_ids_ss The WFO IDs that the snippets were attached to (maybe synonym of the taxon remember)
+        snippet_text_ids_ss The ids of the snippets so that we can recover the snippet that is stored as a separate document in the
+        snippet_text_bodies_txt The content of the snippets. These are not rendered but here so we can search by text.
+        snippet_text_sources_ss The id of the source so we can facet on it.
+    */
+
+    $doc->snippet_text_categories_ss = array(); // the category the snippet is
+    $doc->snippet_text_languages_ss = array(); // the language the snippet is in
+    $doc->snippet_text_name_ids_ss = array(); // the WFO ID of the name the snippet is attached to
+    $doc->snippet_text_ids_ss = array(); // the id of this snippet - used to recover the metadata for this snippet
+    $doc->snippet_text_sources_ss = array(); // the id of this snippet source so we can facet on it
+    $doc->snippet_text_bodies_txt = array(); // actual blocks of text 
+
+    // add the main taxon
+    add_snippets_for_wfo_id($doc, $graph->taxon);
+
+    // add the synonyms
+    foreach ($graph->synonyms as $syn) {
+        add_snippets_for_wfo_id($doc, $syn);
+    }
+
+    // n.b. snippets are never inhereted so we don't add the path
+
+    return $doc;
+
+}
+
+function add_snippets_for_wfo_id($doc, $wfo_ids){
+        
+        global $mysqli;
+
+        $ids_string = "'" . implode("','", $wfo_ids) . "'";
+
+        $response = $mysqli->query("SELECT 
+            s.id, s.source_id, s.body, ss.`snippet_category` as 'category', ss.`snippet_language` as 'language' 
+            FROM snippets as s 
+            JOIN sources as ss on s.source_id = ss.id 
+            WHERE s.wfo_id in ({$ids_string})
+            AND (ss.do_not_index is NULL || ss.do_not_index = 0)");
+
+        while($row = $response->fetch_assoc()){
+            $doc->snippet_text_name_ids_ss[] = $wfo_ids[0]; // the WFO ID of the name the snippet is attached to
+            $doc->snippet_text_categories_ss[] = $row['category']; // the category the snippet is
+            $doc->snippet_text_languages_ss[] = $row['language']; // the language the snippet is in
+            $doc->snippet_text_ids_ss[] = 'wfo-snippet-' . $row['id']; // the id of this snippet - used to recover the metadata (including data source) for this snippet
+            $doc->snippet_text_sources_ss[] = 'wfo-ss-' . $row['source_id']; // the id of this snippet - used to recover the metadata (including data source) for this snippet
+            $doc->snippet_text_bodies_txt[] = $row['body']; // actual blocks of text 
+        }
+
+}
+
+function get_facets_for_wfo_ids($wfo_ids, $scored_via){
+
+    global $mysqli;
+    global $facets_cache;
+
+    // if we have it cached just return that.
+    // caching is by the prefered id which will be the first in the 
+    // array
+    if(isset($facets_cache[$wfo_ids[0]])) return $facets_cache[$wfo_ids[0]];
+
+    // not got it so get it.
+
+    // we look for facets joined to all the ids the name is known by
+    $ids_string = "'" . implode("','", $wfo_ids) . "'";
+
+    $sql = "SELECT 
+        f.id as facet_id,
+        f.`name` as facet_name,
+        f.`heritable` as heritable,
+        fv.id as facet_value_id, 
+        fv.`name` as facet_value_name,
+        s.id as source_id,
+        s.`name` as source_name,
+        '{$scored_via}'  as 'scored_via',
+        '{$wfo_ids[0]}' as 'wfo_id'
+    FROM wfo_scores as ws
+    JOIN facet_values AS fv ON ws.value_id = fv.id
+    JOIN facets AS f ON fv.facet_id = f.id
+    JOIN sources AS s ON ws.source_id = s.id AND s.do_not_index = 0
+    WHERE ws.wfo_id in ({$ids_string})
+    AND (s.do_not_index != 1 OR s.do_not_index is NULL) ";
+
+    // must be a heritable facet to be included
+    if($scored_via == 'ancestor') $sql .= " AND f.heritable = 1 ";
+
+    $response = $mysqli->query($sql);
+    $facets = $response->fetch_all(MYSQLI_ASSOC);
+    $response->close();
+    
+    $facets_cache[$wfo_ids[0]] = $facets;
+
+    // we flush the cache cache at 10,000
+    if(count($facets_cache) > 10000){
+        //echo "\nEmpting facets cache\n";
+        $facets_cache = array();
+    } else{
+        // echo "\nCache". count($facets_cache) ."\n";
+    }
+
+    // finally return the goods
+    return $facets;
+
+}
+
+
+
+function return_sources_metadata(){
+   
+    global $mysqli;
+
+    $solr_docs = array();
+
+    // we create solr docs as near as damn it 
+    // in the query
+    $response = $mysqli->query("SELECT 
+        `id`,
+        `name`,
+        `description`,
+        `link_uri`,
+        `file_path` as 'git_file_path',
+        `oid` as 'git_file_oid',
+        `facet_value_id`,
+        `snippet_category` as 'category',
+        `snippet_language` as 'language',
+        `last_import`
+        FROM sources 
+        WHERE do_not_index = 0
+        ORDER BY `name`");
+    $sources = $response->fetch_All(MYSQLI_ASSOC);
+    $response->close();
+
+    foreach ($sources as $s) {
+
+        // are we doing a snippet or a facet source
+        if($s['category']){
+            $solr_docs[] = (object)array(
+                'id'=> 'wfo-ss-' . $s['id'],
+                'kind_s' => 'wfo-snippet-source',
+                'json_t' => json_encode((object)$s)
+            );
+        }else{
+            $solr_docs[] = (object)array(
+                'id'=> 'wfo-fs-' . $s['id'],
+                'kind_s' => 'wfo-facet-source',
+                'json_t' => json_encode((object)$s)
+            );
+        }
+
+
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($solr_docs);
+    exit;    
+
+
+}
+
+function return_facet_metadata(){
+        
+        global $mysqli;
+
+        $solr_docs = array();
+
+        // we create solr docs as near as damn it 
+        // in the query
+        $response = $mysqli->query("SELECT 
+            id as db_id,
+            concat('wfo-f-', id) as id,
+            'wfo-facet' as kind, 
+            `name` as 'name', 
+            `description` as 'description',
+            `link_uri` as 'link_uri'
+            FROM facets ORDER BY `name`");
+        $facets = $response->fetch_All(MYSQLI_ASSOC);
+        $response->close();
+
+        foreach($facets as $facet){
+
+            // hold on to the db id
+            $facet_id = $facet['db_id'];
+            unset($facet['db_id']);
+            
+            // add the facet values for this facet
+            $response = $mysqli->query("SELECT 
+                concat('wfo-fv-', id) as id,
+                'wfo-facet-value' as kind, 
+                `name` as 'name', 
+                `description` as 'description',
+                `link_uri` as 'link_uri',
+                `code` as 'code',
+                concat('wfo-f-', `facet_id`) as facet_id 
+                FROM facet_values 
+                WHERE facet_id = $facet_id
+                ORDER BY `name`");
+            $facet_values = $response->fetch_All(MYSQLI_ASSOC);
+            $facet['facet_values'] = array();
+            foreach ($facet_values as $fv) {
+               $facet['facet_values'][$fv['id']] = $fv;
+            }
+            $response->close();
+            
+            $solr_docs[] = (object)array('id'=> $facet['id'], 'kind_s' => 'wfo-facet', 'json_t' => json_encode((object)$facet));
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($solr_docs);
+        exit;
+
+}
+
+function return_last_modified($offset){
+
+    global $mysqli;
+
+    // fetch all the snippets for this name
+    $sql = "SELECT wfo_id, DATE_FORMAT(modified, '%Y-%m-%dT%TZ') as 'modified' FROM wfo_facets.modification_log order by modified desc, wfo_id desc limit 1000;";
+
+    //echo $sql;
+    $response = $mysqli->query($sql);
+    $rows = $response->fetch_all(MYSQLI_ASSOC);
+    
+    header('Content-Type: application/json');
+    echo json_encode($rows);
+    exit;
+
+}
+
+/** 
+ * Get header Authorization
+ * https://stackoverflow.com/questions/40582161/how-to-properly-use-bearer-tokens
+ * */
+function get_authorization_header(){
+    $headers = null;
+    if (isset($_SERVER['Authorization'])) {
+        $headers = trim($_SERVER["Authorization"]);
+    }
+    else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
+        $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
+    } elseif (function_exists('apache_request_headers')) {
+        $requestHeaders = apache_request_headers();
+        // Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
+        $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+        //print_r($requestHeaders);
+        if (isset($requestHeaders['Authorization'])) {
+            $headers = trim($requestHeaders['Authorization']);
+        }
+    }
+    return $headers;
+}
+
+/**
+ * get access token from header
+ * */
+function get_bearer_token() {
+    $headers = get_authorization_header();
+    // HEADER: Get the access token from the header
+    if (!empty($headers)) {
+        if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
+            return $matches[1];
+        }
+    }
+    return null;
+}
+
+function render_documentation_page(){
+    require_once('header.php');
+?>
+
+<p><a href="index.php">Fyllo</a> → API</p>
+<h1>API for indexer</h1>
+<p class="lead">
+    This is how the indexer calls Fyllo to get values for inclusion in the portal.
+    It is not a public API but it is good to have an appreciation of the underlying mechanism.
+</p>
+<p>
+    Remember that Fyllo doesn't know anything about the classification of the names it tracks.
+    Actually it knows nothing about the names either! It just stores the WFO IDs and calls 
+    to the public GraphQL API to render a human readable version.
+    The <a href="taxa.php">Taxa</a> page likewise just calls the GraphQL API to calculate
+    the values that would be stored in the index for a particular taxon. This is why it
+    displays the classification used at the top of the page.
+</p>
+
+<h2>Get modified names</h2>
+<p>
+    Calling this URL with method GET and the parameter 'offset' will return a JSON array containing the WFO IDs of the 1,000 names with most recently changed values, and their modification date, in descending order.
+    In order to perform a delta update a client can call <strong>api.php?offset=0</strong> followed by <strong>api.php?offset=1000</strong> etc until it reaches its last sync date or the supply stops.
+</p>
+
+<h2>Fetch values for taxon trees</h2>
+<p>
+    POSTing to this URL with the body containing a JSON array of objects describing <strong>taxon graphs</strong> will return the index values for each of the 
+    taxon graphs in the array. There is a limit of 1,000 objects in each call. 
+</p>
+<p>
+    A <strong>taxon graph</strong> is simple structure. Each name is represented by an array of WFO IDs. Nearly always this will contain a single WFO ID but sometimes 
+    it will contain multiple IDs when there has been deduplication of records. Fyllo won't know about this because it just gets given data tagged with WFO IDs
+    and those might be the IDs for a name record that has been merged into another.
+<code>
+<pre>
+[
+    {
+        "classification": "9999-01",
+        "taxon": [
+            "wfo-0000632146"
+        ],
+        "path": [
+            [
+                "wfo-9971000003"
+            ],
+            [
+                "wfo-4100001250"
+            ],
+            [
+                "wfo-4100003335"
+            ],
+            [
+                "wfo-9949999999",
+                "wfo-9499999999"
+            ],
+            [
+                "wfo-9000000022"
+            ],
+            [
+                "wfo-7000000036"
+            ],
+            [
+                "wfo-4000010286"
+            ]
+        ],
+        "synonyms": [
+            [
+                "wfo-0000431439"
+            ],
+            [
+                "wfo-0000540588"
+            ],
+            [
+                "wfo-0000540624"
+            ],
+            [
+                "wfo-0000540650"
+            ],
+            [
+                "wfo-0000540651"
+            ],
+            [
+                "wfo-0000540653"
+            ]
+        ]
+    }
+]
+</pre>
+</code>
+</p>
+
+<p>
+   The return structure is similar to that required to update a SOLR index.
+<code>
+<pre>
+[
+    {
+        "taxon": "wfo-0000632146",
+        "classification": "9999-01",
+        "wfo-f-2_ss": [
+            "wfo-fv-52",
+            "wfo-fv-72",
+            "wfo-fv-182"
+        ],
+        "wfo-fv-52_provenance_ss": [
+            "wfo-0000632146-s-60-direct",
+            "wfo-0000632146-s-64-direct",
+            "wfo-0000632146-s-65-direct"
+        ],
+        "wfo-f-2_t": "Countries (ISO) :  Chile [CL] Ecuador [EC] Peru [PE]",
+        "wfo-fv-72_provenance_ss": [
+            "wfo-0000632146-s-87-direct"
+        ],
+        "wfo-fv-182_provenance_ss": [
+            "wfo-0000632146-s-192-direct"
+        ],
+        "wfo-f-8_ss": [
+            "wfo-fv-407",
+            "wfo-fv-409",
+            "wfo-fv-453",
+            "wfo-fv-489",
+            "wfo-fv-601"
+        ],
+        "wfo-fv-407_provenance_ss": [
+            "wfo-0000632146-s-1109-direct"
+        ],
+        "wfo-f-8_t": "TDWG Botanical Area :  Chile Central Chile North Gal Juan Fern Peru",
+        "wfo-fv-409_provenance_ss": [
+            "wfo-0000632146-s-1111-direct"
+        ],
+        "wfo-fv-453_provenance_ss": [
+            "wfo-0000632146-s-1155-direct"
+        ],
+        "wfo-fv-489_provenance_ss": [
+            "wfo-0000632146-s-1191-direct"
+        ],
+        "wfo-fv-601_provenance_ss": [
+            "wfo-0000632146-s-1303-direct"
+        ],
+        "wfo-f-5_ss": [
+            "wfo-fv-1887"
+        ],
+        "wfo-fv-1887_provenance_ss": [
+            "wfo-0000632146-s-1554-direct",
+            "wfo-0000540650-s-1554-synonym"
+        ],
+        "wfo-f-5_t": "Life Form :  Annual",
+        "snippet_text_categories_ss": [
+            "link-out"
+        ],
+        "snippet_text_languages_ss": [
+            "zzz"
+        ],
+        "snippet_text_name_ids_ss": [
+            "wfo-0000632146"
+        ],
+        "snippet_text_ids_ss": [
+            "wfo-snippet-21500"
+        ],
+        "snippet_text_sources_ss": [
+            "wfo-ss-1803"
+        ],
+        "snippet_text_bodies_txt": [
+            "https:\/\/www.ncbi.nlm.nih.gov\/Taxonomy\/Browser\/wwwtax.cgi?id=3026891"
+        ]
+    }
+]
+</pre>
+</code>
+</p>
+
+<h2>Facet and Source metadata</h2>
+<p>
+    The metadata for the Facets and Sources are stored as separate documents in the index, not in every taxon record.
+    There is therefore a call to retrieve this data for update. It is done as a single call, no paging, as it shouldn't get that big.
+</p>
+<p>
+    <strong>api.php?metadata=facets</strong>
+</p>
+<p>
+    <strong>api.php?metadata=sources</strong>
+</p>
+
+<h2>Authentication & authorisation</h2>
+<p>
+    These API calls can be expensive to serve. We don't want a bot to get in here and start scraping stuff and so all calls require a key value in the header to be processed.
+    Keys are manually configured and stored in the configuration file.
+</p>
+
+<?php
+    require_once('footer.php');
+}
+
+?>
+
+

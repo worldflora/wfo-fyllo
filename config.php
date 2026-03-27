@@ -13,7 +13,7 @@ error_reporting(E_ALL);
 //error_reporting(E_ALL);
 session_start();
 
-require_once('../../wfo_facet_secrets.php'); // things we don't put in github
+require_once('../../wfo_fyllo_secrets.php'); // things we don't put in github
 
 // Location of the solr server - we should not know about SOLR!
 //define('SOLR_QUERY_URI', $solr_query_uri); // from wfo_secrets.php

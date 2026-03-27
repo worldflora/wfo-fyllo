@@ -131,7 +131,6 @@ class FileStore{
 
 }
 
-
 // for testing this can be run on the command line
 if (php_sapi_name() === 'cli'){
     echo "Testing FileStore\n";
