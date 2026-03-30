@@ -1,6 +1,5 @@
 <?php
     require_once('header.php');
-    require_once('../include/WfoFacets.php');
     require_once('../include/language_codes.php');
 
     if(!@$_GET['wfo_id']){
