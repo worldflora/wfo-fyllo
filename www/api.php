@@ -24,11 +24,24 @@ if($post_body || $_GET){
             $offset = (int)$_GET['offset']; // maybe zero
             return_last_modified((int)$offset);
         }elseif(isset($_GET['metadata'])){
-            if($_GET['metadata'] == 'sources'){
-                return_sources_metadata();
-            }else{
-                return_facet_metadata();
-            }   
+            switch ($_GET['metadata']) {
+                case 'sources':
+                    return_sources_metadata();
+                    break;
+                case 'facets':
+                    return_facet_metadata();
+                    break;        
+                case 'scores':
+                    return_scores_metadata();
+                    break; 
+                case 'snippets':
+                    return_snippets_metadata();
+                    break; 
+                default:
+                    echo "Un-specified metadata ";
+                    break;
+            }
+   
         }
     }
 }else{
@@ -343,6 +356,87 @@ function return_facet_metadata(){
 
 }
 
+function return_scores_metadata(){
+        
+        global $mysqli;
+
+        $solr_docs = array();
+
+        // if they haven't set a since the we begin at the start of the epoch
+        if(!isset($_GET['since'])) $modified_stamp = 0;
+        else $modified_stamp = (int)$_GET['since'];
+        $modified_date = new DateTime();
+        $modified_date = $modified_date->setTimestamp($modified_stamp);
+        $modified_sql = $modified_date->format('Y-m-d H:i:s');
+
+
+        $sql = "SELECT * FROM `wfo_scores` WHERE `modified` > '{$modified_sql}' AND meta_json is not null ORDER BY `modified` LIMIT 1000;"; 
+        $response = $mysqli->query($sql, MYSQLI_USE_RESULT); // we allow for big result set
+
+        $solr_docs = array();
+        while($row = $response->fetch_assoc()){
+
+            $solr_doc = array(
+                'id' => "wfo-fvs-{$row['wfo_id']}-{$row['source_id']}-{$row['value_id']}",
+                'kind_s' => 'wfo-facet-value-score',
+                'wfo_id_s' => $row['wfo_id'],
+                'source_id_s' => $row['source_id'],
+                'value_id_s' => $row['value_id'],
+                'modified_dt' => str_replace(' ', 'T', $row['modified']) . 'Z', // convert the date format
+                'json_t' => $row['meta_json']
+            );
+
+            $solr_docs[] = $solr_doc;
+
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($solr_docs);
+        exit;
+
+}
+
+function return_snippets_metadata(){
+        
+        global $mysqli;
+
+        $solr_docs = array();
+
+        // if they haven't set a since the we begin at the start of the epoch
+        if(!isset($_GET['since'])) $modified_stamp = 0;
+        else $modified_stamp = (int)trim($_GET['since']);
+
+        $modified_date = new DateTime();
+        $modified_date = $modified_date->setTimestamp($modified_stamp);
+        $modified_sql = $modified_date->format('Y-m-d H:i:s');
+
+        $sql = "SELECT * FROM `snippets` WHERE `modified` >= '{$modified_sql}' AND meta_json is not null ORDER BY `modified`  LIMIT 1000;"; 
+
+        //echo $sql; exit;
+        $response = $mysqli->query($sql, MYSQLI_USE_RESULT); // we allow for big result set
+
+        $solr_docs = array();
+        while($row = $response->fetch_assoc()){
+
+            $solr_doc = array(
+                'id' => "wfo-snippet-{$row['id']}",
+                'kind_s' => 'wfo-snippet',
+                'wfo_id_s' => $row['wfo_id'],
+                'source_id_s' => $row['source_id'],
+                'modified_dt' => str_replace(' ', 'T', $row['modified']) . 'Z', // convert the date format
+                'json_t' => $row['meta_json']
+            );
+
+            $solr_docs[] = $solr_doc;
+
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($solr_docs);
+        exit;
+
+}
+
 function return_last_modified($offset){
 
     global $mysqli;
@@ -402,7 +496,7 @@ function render_documentation_page(){
 ?>
 
 <p><a href="index.php">Fyllo</a> → API</p>
-<h1>API for indexer</h1>
+<h1>API for the indexer</h1>
 <p class="lead">
     This is how the indexer calls Fyllo to get values for inclusion in the portal.
     It is not a public API but it is good to have an appreciation of the underlying mechanism.
@@ -581,10 +675,25 @@ function render_documentation_page(){
     <strong>api.php?metadata=sources</strong>
 </p>
 
+<h2>Scores and Snippets</h2>
+<p>
+    We also need to add the extended metadata for all the Facet Value scores and the Snippets. 
+    These are done with the following calls. They accept a "since" parameter as a Unix time stamp 
+    so you don't need to re-index everything everytime.
+    A maximum of 1,000 results are returned ordered by modified date. You can page up to the current
+    date by simply calling again with since the last modified date. (You'll need to convert it to a timestamp.)
+</p>
+<p>
+    <strong>api.php?metadata=scores&since=1774880981</strong>
+</p>
+<p>
+    <strong>api.php?metadata=snippets&since=1774880981</strong>
+</p>
+
 <h2>Authentication & authorisation</h2>
 <p>
     These API calls can be expensive to serve. We don't want a bot to get in here and start scraping stuff and so all calls require a key value in the header to be processed.
-    Keys are manually configured and stored in the configuration file.
+    Keys are manually configured and stored in the configuration file. There is a test script in the code that shows how the bearer token can be passed.
 </p>
 
 <?php

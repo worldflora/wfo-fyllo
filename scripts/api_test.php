@@ -18,7 +18,7 @@ $verb = trim($argv[1]);
 
 if(preg_match('/^wfo-[0-9]{10}$/', $verb)){
     test_taxon_data($verb);
-}elseif($verb == 'sources' || $verb == 'facets'){
+}elseif($verb == 'sources' || $verb == 'facets' || $verb == 'scores' || $verb == 'snippets'){
    test_metadata($verb);
 }else{
     test_modified($argv[2]);
@@ -27,17 +27,31 @@ if(preg_match('/^wfo-[0-9]{10}$/', $verb)){
 function test_metadata($verb){
 
     global $api_bearer_token;
+    global $argv;
+
+    $url = 'http://localhost:3030/api.php?metadata=' . $verb;
+
+    // add in the since if they have passed a date timestamp
+    if(isset($argv[2])) $url .= '&since=' . $argv[2];
 
     $headers = array();
     $headers[] = 'Content-Type: application/json';
     $headers[] = 'Authorization: Bearer '. $api_bearer_token;
-    $curl = curl_init('http://localhost:3030/api.php?metadata=' . $verb);
+    $curl = curl_init($url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_USERAGENT, 'World Flora Online: Fyllo CMS');
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
     $json = curl_exec($curl);
     $result = json_decode($json);
-    print_r($result);
+
+    if(json_last_error() != JSON_ERROR_NONE){
+        echo json_last_error_msg();
+        echo $json;
+    }else{
+        print_r($result);
+    }
+
+
 }
 
 function test_modified($offset){
