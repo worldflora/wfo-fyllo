@@ -25,6 +25,7 @@ class NameCache{
                 }
             ';
 
+
             $graph_ql_variables = (object)array('id' => $wfo_id);
 
             $payload = (object) array(
@@ -32,7 +33,7 @@ class NameCache{
                 'variables' => $graph_ql_variables
             );
 
-            $ch = curl_init( "https://list.worldfloraonline.org/gql.php" );
+            $ch = curl_init( PLANT_LIST_GRAPHQL_URI );
             # Setup request to send json via POST.
             curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode($payload) );
             curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
@@ -41,6 +42,8 @@ class NameCache{
             # Send request.
             $result = curl_exec($ch);
             curl_close($ch);
+
+            error_log(print_r(curl_error($ch), true));
 
             $result = json_decode($result);
 

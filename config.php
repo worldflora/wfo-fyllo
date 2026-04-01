@@ -22,10 +22,6 @@ require_once('../../wfo_fyllo_secrets.php'); // things we don't put in github
 
 define('PLANT_LIST_GRAPHQL_URI', $plant_list_graphql_uri);
 
-// the image cache uses us as a login so we need a redirect 
-//define('IMAGE_CACHE_LOGIN_URI', 'http://localhost:1966/login');
-define('IMAGE_CACHE_LOGIN_URI', 'https://wfo-image-cache.rbge.info/remote');
-
 // used for lookups and other services that don't want to 
 // trouble themselves with many versions of backbone
 // will normally be set to the most recent.
