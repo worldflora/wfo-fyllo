@@ -43,7 +43,7 @@ class NameCache{
             $result = curl_exec($ch);
             curl_close($ch);
 
-            error_log(print_r(curl_error($ch), true));
+            //error_log(print_r(curl_error($ch), true));
 
             $result = json_decode($result);
 
