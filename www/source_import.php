@@ -30,7 +30,7 @@ if(@$_POST['import_button']){
     
     //create a temporary dir we can work with
     $input_file_dir = "../data/session_data/user_{$user['id']}";
-    @mkdir($input_file_path, 0777,true);
+    @mkdir($input_file_dir, 0777,true);
 
     // what kind of remote file do we have?
     $remote_path = parse_url($store->file->downloadUrl, PHP_URL_PATH);
