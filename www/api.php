@@ -1,6 +1,7 @@
 <?php
 
 require_once('../config.php');
+require_once('../include/BearerToken.php');
 
 $facets_cache = array(); // used to prevent calling for facets for higher level taxa repeatedly.
 
@@ -11,7 +12,7 @@ if($post_body || $_GET){
 
     // we are serving data so check they have a bearer token that matches
     // the correct token is stored in the config secrets witht he github token and db credentials.
-    if(get_bearer_token() != $api_bearer_token){
+    if(!BearerToken::authorized()){
         http_response_code(401);
         echo "Unauthorized: You must provide a bearer token!";
         exit;
@@ -22,14 +23,14 @@ if($post_body || $_GET){
     }else{
         if(isset($_GET['offset'])){
             $offset = (int)$_GET['offset']; // maybe zero
-            return_last_modified((int)$offset);
+            return_last_modified((double)$offset);
         }elseif(isset($_GET['metadata'])){
             switch ($_GET['metadata']) {
                 case 'sources':
-                    return_sources_metadata();
+                    return_sources_metadata(isset($_GET['since'])? $_GET['since'] : 0);
                     break;
                 case 'facets':
-                    return_facet_metadata();
+                    return_facet_metadata(isset($_GET['since'])? $_GET['since'] : 0);
                     break;        
                 case 'scores':
                     return_scores_metadata();
@@ -62,6 +63,13 @@ function return_taxon_values($taxon_graphs){
     }
 
     header('Content-Type: application/json');
+    
+    // add a label 
+    $out = array(
+        'kind' => 'taxon-values',
+        'docs' => $out
+    );
+    
     echo json_encode($out);
     exit;
 
@@ -251,7 +259,7 @@ function get_facets_for_wfo_ids($wfo_ids, $scored_via){
 
 
 
-function return_sources_metadata(){
+function return_sources_metadata($since){
    
     global $mysqli;
 
@@ -269,10 +277,12 @@ function return_sources_metadata(){
         `facet_value_id`,
         `snippet_category` as 'category',
         `snippet_language` as 'language',
-        `last_import`
+        `last_import`,
+         concat_ws('.', UNIX_TIMESTAMP(`modified`), id) as 'last_modified_d'
         FROM sources 
         WHERE do_not_index = 0
-        ORDER BY `name`");
+        AND concat_ws('.', UNIX_TIMESTAMP(`modified`), id) > $since
+        ORDER BY last_modified_d");
     $sources = $response->fetch_All(MYSQLI_ASSOC);
     $response->close();
 
@@ -283,27 +293,35 @@ function return_sources_metadata(){
             $solr_docs[] = (object)array(
                 'id'=> 'wfo-ss-' . $s['id'],
                 'kind_s' => 'wfo-snippet-source',
+                'last_modified_d' => (double)$s['last_modified_d'],
                 'json_t' => json_encode((object)$s)
             );
         }else{
             $solr_docs[] = (object)array(
                 'id'=> 'wfo-fs-' . $s['id'],
                 'kind_s' => 'wfo-facet-source',
+                'last_modified_d' => (double)$s['last_modified_d'],
                 'json_t' => json_encode((object)$s)
             );
         }
 
-
     }
 
     header('Content-Type: application/json');
-    echo json_encode($solr_docs);
+
+    // add a label 
+    $out = array(
+        'kind' => 'sources-metadata',
+        'docs' => $solr_docs
+    );
+    
+    echo json_encode($out);
     exit;    
 
 
 }
 
-function return_facet_metadata(){
+function return_facet_metadata($since){
         
         global $mysqli;
 
@@ -317,16 +335,23 @@ function return_facet_metadata(){
             'wfo-facet' as kind, 
             `name` as 'name', 
             `description` as 'description',
-            `link_uri` as 'link_uri'
+            `link_uri` as 'link_uri',
+            concat_ws('.', UNIX_TIMESTAMP(`modified`), id) as 'modified'
             FROM facets ORDER BY `name`");
         $facets = $response->fetch_All(MYSQLI_ASSOC);
         $response->close();
+
 
         foreach($facets as $facet){
 
             // hold on to the db id
             $facet_id = $facet['db_id'];
             unset($facet['db_id']);
+
+            // we tag with the last mod date in the facets and facet_values
+            // not the mod time stamp includes the primary key as the decimal
+            // part of the double because imports may be faster than a second
+            $last_modified = (double)$facet['modified']; 
             
             // add the facet values for this facet
             $response = $mysqli->query("SELECT 
@@ -336,7 +361,8 @@ function return_facet_metadata(){
                 `description` as 'description',
                 `link_uri` as 'link_uri',
                 `code` as 'code',
-                concat('wfo-f-', `facet_id`) as facet_id 
+                concat('wfo-f-', `facet_id`) as facet_id,
+                concat_ws('.', UNIX_TIMESTAMP(`modified`), id) as 'modified'
                 FROM facet_values 
                 WHERE facet_id = $facet_id
                 ORDER BY `name`");
@@ -344,14 +370,34 @@ function return_facet_metadata(){
             $facet['facet_values'] = array();
             foreach ($facet_values as $fv) {
                $facet['facet_values'][$fv['id']] = $fv;
+               if((double)$fv['modified'] > $last_modified) $last_modified = (double)$fv['modified'];
             }
             $response->close();
             
-            $solr_docs[] = (object)array('id'=> $facet['id'], 'kind_s' => 'wfo-facet', 'json_t' => json_encode((object)$facet));
+            // we only add it if it is modified since
+            // yes I know we fetched them all but the work is done
+            // on the other end inserting them in the index and we
+            // don't want to do that if we don't have to.
+            if($last_modified > $since){
+                $solr_docs[] = (object)array(
+                    'id'=> $facet['id'],
+                    'kind_s' => 'wfo-facet',
+                    'last_modified_d' => $last_modified,
+                    'json_t' => json_encode((object)$facet)
+                    );
+            }
+
         }
 
         header('Content-Type: application/json');
-        echo json_encode($solr_docs);
+
+        // add a label 
+        $out = array(
+            'kind' => 'facets-metadata',
+            'docs' => $solr_docs
+        );
+
+        echo json_encode($out);
         exit;
 
 }
@@ -360,17 +406,21 @@ function return_scores_metadata(){
         
         global $mysqli;
 
+        set_time_limit(120); // this can be slow
+
         $solr_docs = array();
 
         // if they haven't set a since the we begin at the start of the epoch
-        if(!isset($_GET['since'])) $modified_stamp = 0;
-        else $modified_stamp = (int)$_GET['since'];
-        $modified_date = new DateTime();
-        $modified_date = $modified_date->setTimestamp($modified_stamp);
-        $modified_sql = $modified_date->format('Y-m-d H:i:s');
+        if(!isset($_GET['since'])) $modified_stamp = 0.0;
+        else $modified_stamp = (double)$_GET['since'];
 
-
-        $sql = "SELECT * FROM `wfo_scores` WHERE `modified` > '{$modified_sql}' AND meta_json is not null ORDER BY `modified` LIMIT 1000;"; 
+        $sql = "SELECT 
+            `wfo_scores`.*, concat(UNIX_TIMESTAMP(`modified`), '.', value_id, source_id) as last_modified_d  
+            FROM `wfo_scores` 
+            WHERE concat(UNIX_TIMESTAMP(`modified`), '.', value_id, source_id) > $modified_stamp
+            AND meta_json is not null 
+            ORDER BY modified, value_id, source_id  
+            LIMIT 1000;"; 
         $response = $mysqli->query($sql, MYSQLI_USE_RESULT); // we allow for big result set
 
         $solr_docs = array();
@@ -382,7 +432,7 @@ function return_scores_metadata(){
                 'wfo_id_s' => $row['wfo_id'],
                 'source_id_s' => $row['source_id'],
                 'value_id_s' => $row['value_id'],
-                'modified_dt' => str_replace(' ', 'T', $row['modified']) . 'Z', // convert the date format
+                'last_modified_d' => (double)$row['last_modified_d'],
                 'json_t' => $row['meta_json']
             );
 
@@ -391,7 +441,15 @@ function return_scores_metadata(){
         }
 
         header('Content-Type: application/json');
-        echo json_encode($solr_docs);
+
+        // add a label 
+        $out = array(
+            'kind' => 'scores-metadata',
+            'modified-stamp' => $modified_stamp,
+            'docs' => $solr_docs
+        );
+
+        echo json_encode($out);
         exit;
 
 }
@@ -403,14 +461,16 @@ function return_snippets_metadata(){
         $solr_docs = array();
 
         // if they haven't set a since the we begin at the start of the epoch
-        if(!isset($_GET['since'])) $modified_stamp = 0;
-        else $modified_stamp = (int)trim($_GET['since']);
+        if(!isset($_GET['since'])) $modified_stamp = 0.0;
+        else $modified_stamp = (double)trim($_GET['since']);
 
-        $modified_date = new DateTime();
-        $modified_date = $modified_date->setTimestamp($modified_stamp);
-        $modified_sql = $modified_date->format('Y-m-d H:i:s');
-
-        $sql = "SELECT * FROM `snippets` WHERE `modified` >= '{$modified_sql}' AND meta_json is not null ORDER BY `modified`  LIMIT 1000;"; 
+        $sql = "SELECT 
+            `snippets`.*,  
+            concat_ws('.', UNIX_TIMESTAMP(`modified`), id) as 'last_modified_d' 
+            FROM `snippets`
+            WHERE concat_ws('.', UNIX_TIMESTAMP(`modified`), id) > $modified_stamp 
+            AND meta_json is not null 
+            ORDER BY last_modified_d  LIMIT 1000;"; 
 
         //echo $sql; exit;
         $response = $mysqli->query($sql, MYSQLI_USE_RESULT); // we allow for big result set
@@ -423,7 +483,7 @@ function return_snippets_metadata(){
                 'kind_s' => 'wfo-snippet',
                 'wfo_id_s' => $row['wfo_id'],
                 'source_id_s' => $row['source_id'],
-                'modified_dt' => str_replace(' ', 'T', $row['modified']) . 'Z', // convert the date format
+                'last_modified_d' => $row['last_modified_d'],
                 'json_t' => $row['meta_json']
             );
 
@@ -432,7 +492,15 @@ function return_snippets_metadata(){
         }
 
         header('Content-Type: application/json');
-        echo json_encode($solr_docs);
+
+        // add a label 
+        $out = array(
+            'kind' => 'snippets-metadata',
+            'modified-stamp' => $modified_stamp,
+            'docs' => $solr_docs
+        );
+
+        echo json_encode($out);
         exit;
 
 }
@@ -440,8 +508,6 @@ function return_snippets_metadata(){
 function return_last_modified($offset){
 
     global $mysqli;
-
-    // fetch all the snippets for this name
     $sql = "SELECT wfo_id, DATE_FORMAT(modified, '%Y-%m-%dT%TZ') as 'modified' FROM wfo_facets.modification_log order by modified desc, wfo_id desc limit 1000;";
 
     //echo $sql;
@@ -449,46 +515,16 @@ function return_last_modified($offset){
     $rows = $response->fetch_all(MYSQLI_ASSOC);
     
     header('Content-Type: application/json');
-    echo json_encode($rows);
+
+    // add a label 
+    $out = array(
+        'kind' => 'modified_names',
+        'docs' => $rows
+    );
+
+    echo json_encode($out);
     exit;
 
-}
-
-/** 
- * Get header Authorization
- * https://stackoverflow.com/questions/40582161/how-to-properly-use-bearer-tokens
- * */
-function get_authorization_header(){
-    $headers = null;
-    if (isset($_SERVER['Authorization'])) {
-        $headers = trim($_SERVER["Authorization"]);
-    }
-    else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
-        $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
-    } elseif (function_exists('apache_request_headers')) {
-        $requestHeaders = apache_request_headers();
-        // Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
-        $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
-        //print_r($requestHeaders);
-        if (isset($requestHeaders['Authorization'])) {
-            $headers = trim($requestHeaders['Authorization']);
-        }
-    }
-    return $headers;
-}
-
-/**
- * get access token from header
- * */
-function get_bearer_token() {
-    $headers = get_authorization_header();
-    // HEADER: Get the access token from the header
-    if (!empty($headers)) {
-        if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
-            return $matches[1];
-        }
-    }
-    return null;
 }
 
 function render_documentation_page(){

@@ -25,8 +25,7 @@ if(preg_match('/^wfo-[0-9]{10}$/', $verb)){
 }
 
 function test_metadata($verb){
-
-    global $api_bearer_token;
+    
     global $argv;
 
     $url = 'http://localhost:3030/api.php?metadata=' . $verb;
@@ -36,7 +35,7 @@ function test_metadata($verb){
 
     $headers = array();
     $headers[] = 'Content-Type: application/json';
-    $headers[] = 'Authorization: Bearer '. $api_bearer_token;
+    $headers[] = 'Authorization: Bearer '. FYLLO_BEARER_TOKEN;
     $curl = curl_init($url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_USERAGENT, 'World Flora Online: Fyllo CMS');
@@ -56,11 +55,9 @@ function test_metadata($verb){
 
 function test_modified($offset){
 
-    global $api_bearer_token;
-
     $headers = array();
     $headers[] = 'Content-Type: application/json';
-    $headers[] = 'Authorization: Bearer '. $api_bearer_token;
+    $headers[] = 'Authorization: Bearer '.FYLLO_BEARER_TOKEN;
     $curl = curl_init('http://localhost:3030/api.php?offset=' . $offset);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_USERAGENT, 'World Flora Online: Fyllo CMS');
@@ -79,18 +76,19 @@ function test_modified($offset){
 
 function test_taxon_data($wfo_id){
 
-    global $api_bearer_token;
-
     // get the graph of the taxon
     $taxon_graph = get_taxon_graph($wfo_id);
     $taxon_graphs = array($taxon_graph); // it expects an array of graphs
+
+   // print_r($taxon_graphs);
+    //exit;
 
     // post it to the script
     $graph_json = json_encode($taxon_graphs);
 
     $headers = array();
     $headers[] = 'Content-Type: application/json';
-    $headers[] = 'Authorization: Bearer '. $api_bearer_token;
+    $headers[] = 'Authorization: Bearer '. FYLLO_BEARER_TOKEN;
 
     $curl = curl_init('http://localhost:3030/api.php');
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -179,7 +177,7 @@ function get_taxon_graph($wfo_id){
             $out['path'][] = array_merge(array($anc->hasName->id), $anc->hasName->wfoIdsDeduplicated) ;
         }
 
-        // the synonyms
+        // the synonyms 
         $out['synonyms'] = array();
         foreach ($result->currentPreferredUsage->hasSynonym as $syn) {
             $out['synonyms'][] = array_merge(array($syn->id), $syn->wfoIdsDeduplicated);

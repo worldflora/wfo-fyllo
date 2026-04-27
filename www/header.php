@@ -56,14 +56,16 @@
                             href="taxa.php">Taxa</a>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'api.php' ? 'active': '';  ?> "
-                            href="api.php">API</a>
-                    </li>
+
    
                     <?php 
                         if($user){
                             ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'api.php' ? 'active': '';  ?> "
+                            href="api.php">API</a>
+                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link <?php echo $user ? '' : 'disabled'; ?>" href="users.php">Users</a>
                     </li>

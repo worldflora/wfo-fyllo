@@ -30,6 +30,8 @@ define('WFO_DEFAULT_VERSION','9999-04');
 // where the SQLite files are stored for export of lists end it in a slash
 define('WFO_EXPORTS_DIRECTORY','../data/exports/');
 
+// an api key for api access
+define('FYLLO_BEARER_TOKEN', $api_bearer_token);
 
 // create and initialise the database connection
 $mysqli = new mysqli($db_host, $db_user, $db_password, $db_database);  
