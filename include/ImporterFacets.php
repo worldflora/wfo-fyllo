@@ -89,6 +89,8 @@ class ImporterFacets{
 
             // wfo id is in first column
             $wfo_id = $row[0];
+
+            error_log($wfo_id);
             
             // must be correct format
             if(!preg_match('/^wfo-[0-9]{10}$/', $wfo_id ?? '')) continue;
@@ -97,6 +99,7 @@ class ImporterFacets{
             $response = $mysqli->query("SELECT * FROM wfo_scores WHERE wfo_id = '$wfo_id' AND source_id = {$this->sourceId};");
             if($response->num_rows > 0){
                 $response->close();
+                error_log($wfo_id . " already in database.");
                 continue;
             }else{
                 $response->close();

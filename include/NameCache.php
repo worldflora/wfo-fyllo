@@ -15,7 +15,6 @@ class NameCache{
             return true;
         }else{
             // we don't have it so we need to call to get it
-
             $graph_ql_query = '
                 query NameFetch($id: String!){
                     taxonNameById(nameId: $id){
@@ -59,7 +58,8 @@ class NameCache{
                 $all_wfo_ids[] = $wfo_id;
 
                 foreach($all_wfo_ids as $wfo_id){
-                    $mysqli->query("INSERT INTO name_cache (`wfo_id`, `name`) VALUES ('$wfo_id', '$name_safe');");
+                    // we might get duplicate keys this way because of the deduplication thing.
+                    $mysqli->query("INSERT INTO name_cache (`wfo_id`, `name`) VALUES ('$wfo_id', '$name_safe') ON DUPLICATE KEY UPDATE wfo_id=wfo_id;");
                 }
                 
                 return true;
