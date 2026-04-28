@@ -2,7 +2,7 @@
 
 
 // Edit the properties of the source
-if(@$_POST && @$_POST['properties_button'] && $user){
+if($user && @$_POST && @$_POST['properties_button']){
 
     $name_safe = $mysqli->real_escape_string($_POST['name']);
     $description_safe = $mysqli->real_escape_string($_POST['description']);
@@ -13,6 +13,9 @@ if(@$_POST && @$_POST['properties_button'] && $user){
     // allow snippet fields to be null
     $category_safe = @$_POST['category'] ? "'" .$mysqli->real_escape_string($_POST['category']) . "'" : 'NULL';
     $language_safe = @$_POST['language'] ? "'" .$mysqli->real_escape_string($_POST['language']) . "'" : 'NULL';
+
+    // we save the POST values to the session so that we can auto fill them
+    $_SESSION['last_source_values'] = $_POST;
 
     // allow facet_value_id to be null for the snippet sources
     if(!$facet_value_id || $facet_value_id == 'snippet'){
@@ -58,13 +61,27 @@ if($source){
     $language = $source['snippet_language'];
     $category = $source['snippet_category'];
 }else{
-    $name = '';
-    $description = '';
-    $link_uri = '';
-    $do_not_index = 0;
-    $file_path = '';
-    $language = 'zzz';
-    $category = 'general';
+
+    // we prepopulate with the last saved values if they are in the session
+    if( isset($_SESSION['last_source_values']) ){
+        $name = $_SESSION['last_source_values']['name'];
+        $description = $_SESSION['last_source_values']['description'];
+        $link_uri = $_SESSION['last_source_values']['link_uri'];
+        $do_not_index = $_SESSION['last_source_values']['do_not_index'];
+        $file_path = $_SESSION['last_source_values']['github_path'];
+        $language = $_SESSION['last_source_values']['language'];
+        $category = $_SESSION['last_source_values']['category'];
+    }else{
+        $name = '';
+        $description = '';
+        $link_uri = '';
+        $do_not_index = 0;
+        $file_path = '';
+        $language = 'zzz';
+        $category = 'general';
+    }
+
+
 }
 
 if($user){
