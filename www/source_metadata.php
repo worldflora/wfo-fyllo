@@ -67,10 +67,10 @@ if($source){
         $name = $_SESSION['last_source_values']['name'];
         $description = $_SESSION['last_source_values']['description'];
         $link_uri = $_SESSION['last_source_values']['link_uri'];
-        $do_not_index = $_SESSION['last_source_values']['do_not_index'];
+        $do_not_index = isset($_SESSION['last_source_values']['do_not_index']) ? $_SESSION['last_source_values']['do_not_index'] : false;
         $file_path = $_SESSION['last_source_values']['github_path'];
-        $language = $_SESSION['last_source_values']['language'];
-        $category = $_SESSION['last_source_values']['category'];
+        $language = isset($_SESSION['last_source_values']['language']) ? $_SESSION['last_source_values']['language'] : 'zzz';
+        $category = isset($_SESSION['last_source_values']['category']) ? $_SESSION['last_source_values']['category'] : 'general';
     }else{
         $name = '';
         $description = '';
