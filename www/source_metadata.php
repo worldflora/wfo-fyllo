@@ -52,6 +52,7 @@ if($user && @$_POST && @$_POST['properties_button']){
 
 }
 
+$message = null;
 if($source){
     $name = $source['name'];
     $description = $source['description'];
@@ -71,6 +72,7 @@ if($source){
         $file_path = $_SESSION['last_source_values']['github_path'];
         $language = isset($_SESSION['last_source_values']['language']) ? $_SESSION['last_source_values']['language'] : 'zzz';
         $category = isset($_SESSION['last_source_values']['category']) ? $_SESSION['last_source_values']['category'] : 'general';
+        $message = "Form populated from last saved source.";
     }else{
         $name = '';
         $description = '';
@@ -103,6 +105,11 @@ if($user){
    $disabled = 'disabled'; // flag to disable all the fields
    echo '<div class="alert alert-success" role="alert">Read only metadata view.</div>';
 }
+
+if($message){
+    echo '<div class="alert alert-success" role="alert">'. $message .'</div>'; 
+}
+
 ?>
 
 <form method="POST" action="source.php">
