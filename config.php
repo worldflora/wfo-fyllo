@@ -33,6 +33,9 @@ define('WFO_EXPORTS_DIRECTORY','../data/exports/');
 // an api key for api access
 define('FYLLO_BEARER_TOKEN', $api_bearer_token);
 
+// a place to download copies from
+define('FYLLO_TOP_COPY_URL', 'https://fyllo.rbge.info/');
+
 // create and initialise the database connection
 $mysqli = new mysqli($db_host, $db_user, $db_password, $db_database);  
 

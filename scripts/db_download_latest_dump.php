@@ -2,7 +2,7 @@
 
 /*
 
-    This will call the live (top copy) of Rhakhis for the last database dump and
+    This will call the live (top copy) of Fyllo for the last database dump and
     download it to the ../data/db_dumps/ directory so that it can be picked up
     by the db_restore_latest_dump.sh script. 
 
@@ -14,11 +14,11 @@ echo "\nFetching list of available db dumps\n";
 
 $headers = array();
 $headers[] = 'Content-Type: application/json';
-$headers[] = 'Authorization: Bearer '. RHAKHIS_BEARER_TOKEN;
+$headers[] = 'Authorization: Bearer '. FYLLO_BEARER_TOKEN;
 
-$curl = curl_init(RHAKHIS_TOP_COPY_URL . 'download_backup.php');
+$curl = curl_init(FYLLO_TOP_COPY_URL . 'download_backup.php');
 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($curl, CURLOPT_USERAGENT, 'World Flora Online: Rhakhis');
+curl_setopt($curl, CURLOPT_USERAGENT, 'World Flora Online: Fyllo');
 curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 $json = curl_exec($curl);
 if (curl_errno($curl)) {
@@ -55,11 +55,11 @@ if(file_exists($local_file_path)){
 echo "Downloading ...\n";
 
 $headers = array();
-$headers[] = 'Authorization: Bearer '. RHAKHIS_BEARER_TOKEN;
+$headers[] = 'Authorization: Bearer '. FYLLO_BEARER_TOKEN;
 
 $curl = curl_init();
-curl_setopt($curl, CURLOPT_URL, RHAKHIS_TOP_COPY_URL . 'download_backup.php?filename=' . $latest->name); // pass the file name as a parameter will trigger the download
-curl_setopt($curl, CURLOPT_USERAGENT, 'World Flora Online: Rhakhis'); // tell them who we are
+curl_setopt($curl, CURLOPT_URL, FYLLO_TOP_COPY_URL . 'download_backup.php?filename=' . $latest->name); // pass the file name as a parameter will trigger the download
+curl_setopt($curl, CURLOPT_USERAGENT, 'World Flora Online: Fyllo'); // tell them who we are
 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1); // yes we want to data
 curl_setopt($curl, CURLOPT_HTTPHEADER, $headers); // bearer token or we will be rejected
 $out = fopen($local_file_path, 'w'); // get a handle to write to
