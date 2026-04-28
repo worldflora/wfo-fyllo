@@ -42,12 +42,12 @@
         $response->close();
         
         // crumb trail
-        $source_id = isset($source['id']) ? $source['id'] : 'New';
+        $source_id_display = isset($source['id']) ? $source['id'] : 'New';
         echo "<p><a href=\"facets.php\">Fyllo</a> 
             → <a href=\"facets.php\">Facets</a> 
             → <a href=\"facet_values.php?facet_id={$facet_value['facet_id']}\">{$facet_value['facet_name']}</a> 
             → <a href=\"facet_values.php?facet_id={$facet_value['facet_id']}\">{$facet_value['facet_value_name']}</a> 
-            → Data Source: {$source_id}
+            → Data Source: {$source_id_display}
         </p>";
         //echo "<p><a href=\"facet_values.php?facet_id={$facet_value['facet_id']}\">{$facet_value['facet_name']}: {$facet_value['facet_value_name']}</a>.</p>";
    
