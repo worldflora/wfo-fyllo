@@ -1,5 +1,12 @@
 <?php
 
+/*
+
+ALTER TABLE `wfo_facets`.`sources` 
+ADD COLUMN `auto_import` TINYINT NOT NULL DEFAULT 1 AFTER `do_not_index`;
+
+*/
+
 
 // Edit the properties of the source
 if($user && @$_POST && @$_POST['properties_button']){
@@ -9,6 +16,7 @@ if($user && @$_POST && @$_POST['properties_button']){
     $uri_safe = $mysqli->real_escape_string($_POST['link_uri']);
     $path_safe = $mysqli->real_escape_string($_POST['github_path']);
     $do_not_index = @$_POST['do_not_index'] && $_POST['do_not_index'] == 1 ? 1 : 0;
+    $auto_import = @$_POST['auto_import'] && $_POST['auto_import'] == 1 ? 1 : 0;
 
     // allow snippet fields to be null
     $category_safe = @$_POST['category'] ? "'" .$mysqli->real_escape_string($_POST['category']) . "'" : 'NULL';
@@ -26,7 +34,7 @@ if($user && @$_POST && @$_POST['properties_button']){
 
     if($source_id){
         // we are updating
-        $mysqli->query("UPDATE `sources` SET `name` = '$name_safe', `description` = '$description_safe', `link_uri` = '$uri_safe', `do_not_index` = $do_not_index, `file_path` = '$path_safe', `snippet_language` = $language_safe, `snippet_category` = $category_safe WHERE id = $source_id;");
+        $mysqli->query("UPDATE `sources` SET `name` = '$name_safe', `description` = '$description_safe', `link_uri` = '$uri_safe', `do_not_index` = $do_not_index, `auto_import` = $auto_import, `file_path` = '$path_safe', `snippet_language` = $language_safe, `snippet_category` = $category_safe WHERE id = $source_id;");
         echo '<div class="alert alert-success" role="alert">Source saved.</div>';
         echo "<script>window.location.href = \"source.php?source_id={$source_id}\"</script>";
     }else{
@@ -36,7 +44,7 @@ if($user && @$_POST && @$_POST['properties_button']){
         $mysqli->begin_transaction(); // as a transaction because two things need to happen at the same time
 
         try{
-            $mysqli->query("INSERT INTO `sources` (`name`, `description`, `link_uri`, `do_not_index`, `file_path`, `facet_value_id`,  `snippet_language`, `snippet_category` ) VALUES ('$name_safe', '$description_safe', '$uri_safe', $do_not_index, '$path_safe', $facet_value_id_safe, $language_safe, $category_safe)");
+            $mysqli->query("INSERT INTO `sources` (`name`, `description`, `link_uri`, `do_not_index`, `auto_import`, `file_path`, `facet_value_id`,  `snippet_language`, `snippet_category` ) VALUES ('$name_safe', '$description_safe', '$uri_safe', $do_not_index, $auto_import, '$path_safe', $facet_value_id_safe, $language_safe, $category_safe)");
             $source_id = $mysqli->insert_id;
             $mysqli->commit();
             echo '<div class="alert alert-success" role="alert">Source "' . $_POST['name'] . '" created.</div>';
@@ -58,6 +66,7 @@ if($source){
     $description = $source['description'];
     $link_uri = $source['link_uri'];
     $do_not_index = $source['do_not_index'];
+    $auto_import = $source['auto_import'];
     $file_path = $source['file_path'];
     $language = $source['snippet_language'];
     $category = $source['snippet_category'];
@@ -69,6 +78,7 @@ if($source){
         $description = $_SESSION['last_source_values']['description'];
         $link_uri = $_SESSION['last_source_values']['link_uri'];
         $do_not_index = isset($_SESSION['last_source_values']['do_not_index']) ? $_SESSION['last_source_values']['do_not_index'] : false;
+        $auto_import = isset($_SESSION['last_source_values']['auto_import']) ? $_SESSION['last_source_values']['auto_import'] : false;
         $file_path = $_SESSION['last_source_values']['github_path'];
         $language = isset($_SESSION['last_source_values']['language']) ? $_SESSION['last_source_values']['language'] : 'zzz';
         $category = isset($_SESSION['last_source_values']['category']) ? $_SESSION['last_source_values']['category'] : 'general';
@@ -77,7 +87,8 @@ if($source){
         $name = '';
         $description = '';
         $link_uri = '';
-        $do_not_index = 0;
+        $do_not_index = 0; // default to indexing
+        $auto_import = 1; // default to auto importing
         $file_path = '';
         $language = 'zzz';
         $category = 'general';
@@ -220,6 +231,19 @@ if($message){
         <div id="pick-button-help" class="form-text">Use the picker to select a CSV file from the GitHub repository. You can't enter this path manually.</div>
     </div>
 
+    <!-- Auto Import -->
+    <div class="mb-3 form-check">
+        <label for="auto_import" class="form-label">Auto Import</label>
+        <input type="checkbox" class="form-check-input" id="auto_import" name="auto_import" aria-describedby="auto_import_help"
+            value="1"
+            <?php echo $auto_import ? 'checked' : ''; ?> <?php echo $disabled  ?>/>
+        <div id="auto_import" class="form-text">If this box is ticked then an import script (run by the Airflow orchestrator) will
+            periodically keep it up to date with any changes made to the linked GitHub file. 
+        </div>
+    </div>
+
+
+    <!-- Do NOT index -->
     <div class="mb-3 form-check">
         <label for="do_not_index" class="form-label">Do NOT index</label>
         <input type="checkbox" class="form-check-input" id="do_not_index" name="do_not_index" aria-describedby="do_not_index_help"

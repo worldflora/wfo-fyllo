@@ -2,6 +2,8 @@
 
 require_once('../config.php');
 require_once('../include/BearerToken.php');
+require_once('../include/FileStore.php');
+require_once('../include/NameCache.php');
 
 $facets_cache = array(); // used to prevent calling for facets for higher level taxa repeatedly.
 
@@ -21,7 +23,7 @@ if($post_body || $_GET){
     if($post_body){
         return_taxon_values(json_decode($post_body));
     }else{
-        if(isset($_GET['offset'])){
+        if(isset($_GET['offset']) && !isset($_GET['import'])){
             $offset = (int)$_GET['offset']; // maybe zero
             return_last_modified((double)$offset);
         }elseif(isset($_GET['metadata'])){
@@ -43,6 +45,51 @@ if($post_body || $_GET){
                     break;
             }
    
+        }elseif(isset($_GET['import'])){
+
+            // set up the values for the indexing - if set
+            $out = (object)$_GET;
+
+            $importer = null;
+            if($out->import == 'facets' && $out->local_file_path){
+                // importing facets
+                require_once('../include/ImporterFacets.php');
+                $importer = new ImporterFacets(
+                        $out->local_file_path,
+                        $out->oid,
+                        $out->source_id,
+                        $out->facet_value_id,
+                        $out->offset
+                    );
+            }elseif($out->import == 'snippets' && $out->local_file_path){
+                // importing snippets
+                require_once('../include/ImporterSnippets.php');
+                $importer = new ImporterSnippets(
+                        $out->local_file_path,
+                        $out->oid,
+                        $out->source_id,
+                        $out->offset);
+            }else{
+                // work out what the next import should be.
+                $out = get_next_import_job($out); 
+            }
+
+            if($importer){
+                if(!isset($out->page_size)) $out->page_size = 100;
+                $out->rows_processed = $importer->import($out->page_size);
+            }else{
+                $out->rows_processed = null;
+                $out->finished = null;
+            }
+
+            // flag if we have finished processing
+            if($out->rows_processed != null){
+                if($out->rows_processed < $out->page_size) $out->finished = true; // fewer on that page than we asked for so it was the last
+                else $out->finished = false; // we processed a whole page full so there may be more
+            }
+
+            header('Content-Type: application/json');
+            echo json_encode($out);
         }
     }
 }else{
@@ -50,6 +97,47 @@ if($post_body || $_GET){
     render_documentation_page();
 }
 
+/**
+ * We need to fetch the next import job to be done
+ * 
+ */
+function get_next_import_job($out){
+
+    global $mysqli;
+
+    $sql = "SELECT `id`, `file_path`, `facet_value_id`, `oid`, `snippet_language` FROM wfo_facets.sources WHERE auto_import = 1 ORDER BY last_import ASC;";
+    $response = $mysqli->query($sql, MYSQLI_USE_RESULT);
+
+    $out->import = null;
+    $store = null;
+    while($row = $response->fetch_assoc()){
+
+        // has the github file changed.
+        $store = new FileStore($row['file_path']);
+        if($store->file->oid != $row['oid']){
+            // bingo we have a wrongun
+            $out->remote_file_path = $row['file_path'];
+            $out->source_id = $row['id'];
+            $out->facet_value_id = $row['facet_value_id'];
+            $out->offset = 0;
+            $out->oid = $store->file->oid;
+            $out->import =  $row['snippet_language'] ? 'snippets' : 'facets'; // snippets always have a language
+            break;
+        }
+
+    }
+
+    $local_file_dir = "../data/session_data/api";
+    @mkdir($local_file_dir, 0777,true);
+
+    if($store && $out->import){
+        // we've got a store and a local file we have downloaded.
+        $out->local_file_path =  $store->downloadFile($local_file_dir);
+    }
+
+    return $out;
+
+}
 
 function return_taxon_values($taxon_graphs){
 

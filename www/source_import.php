@@ -29,97 +29,20 @@ if($user && $store->file){
 if(@$_POST['import_button']){
     
     //create a temporary dir we can work with
-    $input_file_dir = "../data/session_data/user_{$user['id']}";
-    @mkdir($input_file_dir, 0777,true);
+    $local_file_dir = "../data/session_data/user_{$user['id']}";
+    @mkdir($local_file_dir, 0777,true);
 
-    // what kind of remote file do we have?
-    $remote_path = parse_url($store->file->downloadUrl, PHP_URL_PATH);
-    $remote_filename = pathinfo($remote_path, PATHINFO_FILENAME);
-    $remote_extension = pathinfo($remote_path, PATHINFO_EXTENSION);
-    
-    // download the file
-    $input_file_path =  "{$input_file_dir}/{$remote_filename}.{$remote_extension}";
+    $local_file_path = $store->downloadFile($local_file_dir);
 
-    // fetch it from github
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $store->file->downloadUrl); // where the remote file is
-    curl_setopt($curl, CURLOPT_USERAGENT, 'World Flora Online: Fyllo CMS'); // tell them who we are
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1); // yes we want to data
-    $out = fopen($input_file_path, 'w'); // get a handle to write to
-    curl_setopt($curl, CURLOPT_FILE, $out); // write it to the file
-
-    // headers required to say we want the raw download and not a json summary.
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'Accept:application/vnd.github.v3.raw'
-    ));
-
-    // do it
-    $result = curl_exec($curl);
-    curl_close($curl);
-    fclose($out);
-
-    // double check we got it - and set flag to stop import if we can't uncompress it
-    if(file_exists($input_file_path)) $have_file = true;
-    else $have_file = false;
-
-    // we have downloaded the file do we need to unzip it?
-    if($remote_extension == 'zip' && $have_file){
-        
-        $zip = new ZipArchive();
-        
-        // only one file so we can get its name
-        if ($zip->open($input_file_path) == TRUE) {
-
-            // we can't simply count the files because mac put extra
-            // files in zips starting with _
-            $filenames = array();
-            for ($i = 0; $i < $zip->numFiles; $i++) {
-                $n = $zip->getNameIndex($i);
-                if(!preg_match('/^_/', $n)) $filenames[] = $n;
-            }
-
-            if(count($filenames) != 1){
-
-                $have_file = false; // don't have a good file
-                // tell the user
-                $file_list = implode(', ', $filenames);
-                echo '<div class="alert alert-danger" role="alert"><strong>The zip archive contains multiple files ('. $file_list .'). Which is right? Correct in GitHub.</strong></div>';
-                // clean up
-                unlink($input_file_path);
-
-            }else{
-            
-                // extract the file
-                $filename = $filenames[0];
-                $zip->extractTo($input_file_dir, $filename);
-
-                // remove the zip file
-                unlink($input_file_path);
-
-                // make the extracted file into the new input file
-                $input_file_path = "{$input_file_dir}/{$filename}";
-            
-            } // only one file in zip
-
-        }else{
-            $have_file = false; // don't have a good file
-            // tell the user
-                echo '<div class="alert alert-danger" role="alert"><strong>Something is corrupt with the zip file.</strong></div>';
-            // clean up
-            unlink($input_file_path);
-        }
-        
-    }
-
-    if($have_file){
+    if($local_file_path){
 
         // we create an importer instance and put it in the session.
         if($snippet_mode){
             // we are importing snippets
-            $importer = new ImporterSnippets($input_file_path, $store->file->oid, $source_id);
+            $importer = new ImporterSnippets($local_file_path, $store->file->oid, $source_id);
         }else{
             // we are importing facet data
-            $importer = new ImporterFacets($input_file_path, $store->file->oid, $source_id, $facet_value['facet_value_id']);
+            $importer = new ImporterFacets($local_file_path, $store->file->oid, $source_id, $facet_value['facet_value_id']);
         }
         
         $_SESSION['importer'] = serialize($importer);

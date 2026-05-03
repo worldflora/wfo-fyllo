@@ -128,6 +128,93 @@ class FileStore{
 
     } // end constructor
 
+    public function downloadFile($local_file_dir){
+        
+        // what kind of remote file do we have?
+        $remote_path = parse_url($this->file->downloadUrl, PHP_URL_PATH);
+        $remote_filename = pathinfo($remote_path, PATHINFO_FILENAME);
+        $remote_extension = pathinfo($remote_path, PATHINFO_EXTENSION);
+
+        // download the file
+        $local_file_path =  "{$local_file_dir}/{$remote_filename}.{$remote_extension}";
+
+        // fetch it from github
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->file->downloadUrl); // where the remote file is
+        curl_setopt($curl, CURLOPT_USERAGENT, 'World Flora Online: Fyllo CMS'); // tell them who we are
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1); // yes we want to data
+        $out = fopen($local_file_path, 'w'); // get a handle to write to
+        curl_setopt($curl, CURLOPT_FILE, $out); // write it to the file
+
+        // headers required to say we want the raw download and not a json summary.
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+            'Accept:application/vnd.github.v3.raw'
+        ));
+
+        // do it
+        $result = curl_exec($curl);
+        curl_close($curl);
+        fclose($out);
+
+        // double check we got it - and set flag to stop import if we can't uncompress it
+        if(file_exists($local_file_path)) $have_file = true;
+        else $have_file = false;
+
+         // we have downloaded the file do we need to unzip it?
+        if($remote_extension == 'zip' && $have_file){
+        
+            $zip = new ZipArchive();
+            
+            // only one file so we can get its name
+            if ($zip->open($local_file_path) == TRUE) {
+
+                // we can't simply count the files because mac put extra
+                // files in zips starting with _
+                $filenames = array();
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $n = $zip->getNameIndex($i);
+                    if(!preg_match('/^_/', $n)) $filenames[] = $n;
+                }
+
+                if(count($filenames) != 1){
+
+                    $have_file = false; // don't have a good file
+                    // tell the user
+                    $file_list = implode(', ', $filenames);
+                    // clean up
+                    unlink($local_file_path);
+
+                }else{
+                
+                    // extract the file
+                    $filename = $filenames[0];
+                    $zip->extractTo($local_file_dir, $filename);
+
+                    // remove the zip file
+                    unlink($local_file_path);
+
+                    // make the extracted file into the new input file
+                    $local_file_path = "{$local_file_dir}/{$filename}";
+                
+                } // only one file in zip
+
+            }else{
+                $have_file = false; // don't have a good file
+                unlink($local_file_path);
+            }
+        
+        }
+
+        if($have_file){
+            return $local_file_path;
+        }else{
+            return null;
+        }
+
+
+
+    }
+
 
 }
 

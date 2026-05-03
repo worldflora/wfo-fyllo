@@ -61,7 +61,7 @@ class ImporterFacets{
             $row = fgetcsv($this->file, escape: "\\");
 
             // capture the header if there is one
-            if($this->offset == 0){
+            if($i == 0){
 
                 if(preg_match('/^wfo-[0-9]{10}$/', $row[0] ?? '')){
                     // we have a wfo-id in the first column so we know this isn't a header row
@@ -90,7 +90,7 @@ class ImporterFacets{
             // wfo id is in first column
             $wfo_id = $row[0];
 
-            error_log($wfo_id);
+           // error_log($wfo_id);
             
             // must be correct format
             if(!preg_match('/^wfo-[0-9]{10}$/', $wfo_id ?? '')) continue;
@@ -127,4 +127,5 @@ class ImporterFacets{
         return $page_size;
         
     }
+
 }
