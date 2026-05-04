@@ -105,7 +105,7 @@ function get_next_import_job($out){
 
     global $mysqli;
 
-    $sql = "SELECT `id`, `file_path`, `facet_value_id`, `oid`, `snippet_language` FROM wfo_facets.sources WHERE auto_import = 1 ORDER BY last_import ASC;";
+    $sql = "SELECT `id`, `file_path`, `facet_value_id`, `oid`, `snippet_language` FROM sources WHERE auto_import = 1 ORDER BY last_import ASC;";
     $response = $mysqli->query($sql, MYSQLI_USE_RESULT);
 
     $out->import = null;
@@ -596,7 +596,7 @@ function return_snippets_metadata(){
 function return_last_modified($offset){
 
     global $mysqli;
-    $sql = "SELECT wfo_id, DATE_FORMAT(modified, '%Y-%m-%dT%TZ') as 'modified' FROM wfo_facets.modification_log order by modified desc, wfo_id desc limit 1000;";
+    $sql = "SELECT wfo_id, DATE_FORMAT(modified, '%Y-%m-%dT%TZ') as 'modified' FROM modification_log order by modified desc, wfo_id desc limit 1000;";
 
     //echo $sql;
     $response = $mysqli->query($sql);

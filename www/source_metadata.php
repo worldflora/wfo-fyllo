@@ -2,8 +2,8 @@
 
 /*
 
-ALTER TABLE `wfo_facets`.`sources` 
-ADD COLUMN `auto_import` TINYINT NOT NULL DEFAULT 1 AFTER `do_not_index`;
+    ALTER TABLE fyllo.`sources` 
+    ADD COLUMN `auto_import` TINYINT NOT NULL DEFAULT 1 AFTER `do_not_index`;
 
 */
 
