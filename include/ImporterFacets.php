@@ -28,7 +28,9 @@ class ImporterFacets{
         $this->file = fopen($this->filePath, 'r');
 
         // strip it all out before we start
-        $mysqli->query("DELETE FROM wfo_scores WHERE source_id = $this->sourceId;");
+        if($offset == 0){
+            $mysqli->query("DELETE FROM wfo_scores WHERE source_id = $this->sourceId;");
+        }        
 
         $this->seek($this->offset);
 
