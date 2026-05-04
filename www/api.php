@@ -5,6 +5,8 @@ require_once('../include/BearerToken.php');
 require_once('../include/FileStore.php');
 require_once('../include/NameCache.php');
 
+set_time_limit(60 * 2); // we don't want these scripts to time out but we don't want them to block either.
+
 $facets_cache = array(); // used to prevent calling for facets for higher level taxa repeatedly.
 
 // this returns facet and snippet values for taxa that are provided as 'taxon graphs' in json
