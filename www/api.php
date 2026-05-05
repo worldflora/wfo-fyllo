@@ -233,8 +233,8 @@ function get_taxon_values($graph){
 
         // add the provenance for this facet value
         // name_scored-source_scored_id-via a synonym/ancestor/direct
-        $doc->{$provenance_field_name}[] = "{$facet['wfo_id']}-s-{$facet['source_id']}-{$facet['scored_via']}";
-
+        $prov = "{$facet['wfo_id']}-s-{$facet['source_id']}-{$facet['scored_via']}";
+        if(!in_array($prov, $doc->{$provenance_field_name})) $doc->{$provenance_field_name}[] = $prov;
 
     }
 
