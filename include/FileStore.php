@@ -138,9 +138,11 @@ class FileStore{
         // download the file
         $local_file_path =  "{$local_file_dir}/{$remote_filename}.{$remote_extension}";
 
+        // curl doesn't like spaces
+        $download_url = str_replace(' ', '%20', $this->file->downloadUrl);
+
         // fetch it from github
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $this->file->downloadUrl); // where the remote file is
+        $curl = curl_init($download_url); // where the remote file is
         curl_setopt($curl, CURLOPT_USERAGENT, 'World Flora Online: Fyllo CMS'); // tell them who we are
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1); // yes we want to data
         $out = fopen($local_file_path, 'w'); // get a handle to write to
@@ -153,6 +155,9 @@ class FileStore{
 
         // do it
         $result = curl_exec($curl);
+
+        if(curl_error($curl)) echo curl_error($curl);
+
         curl_close($curl);
         fclose($out);
 
