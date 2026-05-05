@@ -218,6 +218,7 @@ function get_taxon_values($graph){
         $facet_field_name = "wfo-f-{$facet['facet_id']}_ss";
         $provenance_field_name = "wfo-fv-{$facet['facet_value_id']}_provenance_ss";
         $text_field_name = "wfo-f-{$facet['facet_id']}_t";
+
         if(!isset($doc->{$facet_field_name})){
             $doc->{$facet_field_name} = array();
             $doc->{$provenance_field_name} = array();
@@ -233,7 +234,9 @@ function get_taxon_values($graph){
 
         // add the provenance for this facet value
         // name_scored-source_scored_id-via a synonym/ancestor/direct
+
         $prov = "{$facet['wfo_id']}-s-{$facet['source_id']}-{$facet['scored_via']}";
+        if(!isset($doc->{$provenance_field_name})) $doc->{$provenance_field_name} = array();
         if(!in_array($prov, $doc->{$provenance_field_name})) $doc->{$provenance_field_name}[] = $prov;
 
     }
