@@ -25,8 +25,10 @@ class ImporterSnippets{
         $this->file = fopen($this->filePath, 'r');
 
         // we always replace everything
-        $mysqli->query("DELETE FROM snippets WHERE source_id = $this->sourceId and id > 0;");
-
+        if($offset == 0){
+            // but only if this is the first instance
+            $mysqli->query("DELETE FROM snippets WHERE source_id = $this->sourceId and id > 0;");
+        }
         $this->seek($this->offset);
 
     }
@@ -42,7 +44,29 @@ class ImporterSnippets{
     }
 
     public function seek($line){
+        
+        // go to the start of the file
         rewind($this->file);
+
+        // when we are at the start of the file we capture the header
+        $row = fgetcsv($this->file, escape: "\\");
+
+        if(preg_match('/^wfo-[0-9]{10}$/', $row[0])){
+            // we have a wfo-id in the first column so we know this isn't a header row
+            // make one up
+            $this->header = array();
+            for($j = 0; $j < count($row); $j++){
+                $this->header[] = 'col_' . $j;
+            }
+        }else{
+            // the first row is the header
+            $this->header = $row;
+        }
+
+        // back to the start again
+        rewind($this->file);
+
+        // wind forward to the line we need
         for ($i=0; $i < $line; $i++) {
             fgetcsv($this->file, escape: "\\");
         }
@@ -55,24 +79,6 @@ class ImporterSnippets{
         for ($i=0; $i < $page_size; $i++) { 
 
             $row = fgetcsv($this->file, escape: "\\");
-
-            // capture the header if there is one
-            if($this->offset == 0){
-
-                if(preg_match('/^wfo-[0-9]{10}$/', $row[0])){
-                    // we have a wfo-id in the first column so we know this isn't a header row
-                    // make one up
-                    $this->header = array();
-                    for($j = 0; $j < count($row); $j++){
-                        $this->header[] = 'col_' . $j;
-                    }
-                }else{
-                    // the first row is the header
-                    $this->header = $row;
-                    // let it carry on and up the offset etc - will be kicked out later
-                }
-
-            }
 
             $this->offset++;
 
