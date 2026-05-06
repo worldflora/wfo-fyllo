@@ -22,14 +22,21 @@
         $facet_value_id == null;
         
         // crumb trail
-        $language_display = $language_codes_alpha3[$source['snippet_language']]['eng'];
-        $category_display = ucfirst($source['snippet_category']);
-        echo "<p><a href=\"facets.php\">Fyllo</a> 
-            → <a href=\"snippets.php\">Snippets</a>
-            → <a href=\"snippets.php?category={$source['snippet_category']}\">{$category_display}</a> 
-            → <a href=\"snippets.php?language={$source['snippet_language']}&category={$source['snippet_category']}\">{$language_display}</a> 
-            → Data Source: {$source['id']}
-        </p>";
+        if(isset($source['id'])){
+            $language_display = $language_codes_alpha3[$source['snippet_language']]['eng'];
+            $category_display = ucfirst($source['snippet_category']);
+            echo "<p><a href=\"facets.php\">Fyllo</a> 
+                → <a href=\"snippets.php\">Snippets</a>
+                → <a href=\"snippets.php?category={$source['snippet_category']}\">{$category_display}</a> 
+                → <a href=\"snippets.php?language={$source['snippet_language']}&category={$source['snippet_category']}\">{$language_display}</a> 
+                → Data Source: {$source['id']}
+            </p>";
+        }else{
+            echo "<p><a href=\"facets.php\">Fyllo</a> 
+                → <a href=\"snippets.php\">Snippets</a>
+                → Data Source: New</p>";
+
+        }
 
     }else{
         $snippet_mode = false;
