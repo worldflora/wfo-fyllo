@@ -118,7 +118,9 @@ class FileStore{
 
             }else{
                 // we don't have entries we are a file
-                $this->file = $result->data->repository->object;
+                if(isset($result->data->repository->object)){
+                    $this->file = $result->data->repository->object;
+                }
                 if($this->file){
                     $this->file->downloadUrl = "https://api.github.com/repos/worldflora/wfo-text-content/contents/" . $this->path;
                 }

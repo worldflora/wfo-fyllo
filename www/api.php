@@ -115,8 +115,10 @@ function get_next_import_job($out){
     while($row = $response->fetch_assoc()){
 
         // has the github file changed.
+
         $store = new FileStore($row['file_path']);
-        if($store->file->oid != $row['oid']){
+
+        if(isset($store->file) && $store->file && $store->file->oid != $row['oid']){
             // bingo we have a wrongun
             $out->remote_file_path = $row['file_path'];
             $out->source_id = $row['id'];
