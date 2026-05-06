@@ -29,6 +29,7 @@ class ImporterSnippets{
             // but only if this is the first instance
             $mysqli->query("DELETE FROM snippets WHERE source_id = $this->sourceId and id > 0;");
         }
+
         $this->seek($this->offset);
 
     }
