@@ -107,7 +107,7 @@ function get_next_import_job($out){
 
     global $mysqli;
 
-    $sql = "SELECT `id`, `file_path`, `facet_value_id`, `oid`, `snippet_language` FROM sources WHERE auto_import = 1 ORDER BY last_import ASC;";
+    $sql = "SELECT `id`, `file_path`, `facet_value_id`, `oid`, `snippet_language`, `last_import` FROM sources WHERE auto_import = 1 ORDER BY last_import ASC;";
     $response = $mysqli->query($sql, MYSQLI_USE_RESULT);
 
     $out->import = null;
@@ -118,15 +118,24 @@ function get_next_import_job($out){
 
         $store = new FileStore($row['file_path']);
 
-        if(isset($store->file) && $store->file && $store->file->oid != $row['oid']){
+        if(
+            !$row['last_import'] // never been imported
+            ||
+            (isset($store->file) && $store->file && $store->file->oid != $row['oid']) // previously imported but changed.
+        ){
             // bingo we have a wrongun
-            $out->remote_file_path = $row['file_path'];
-            $out->source_id = $row['id'];
-            $out->facet_value_id = $row['facet_value_id'];
-            $out->offset = 0;
-            $out->oid = $store->file->oid;
-            $out->import =  $row['snippet_language'] ? 'snippets' : 'facets'; // snippets always have a language
-            break;
+            // does the file link correctly?
+            if(isset($store->file) && $store->file){
+                $out->remote_file_path = $row['file_path'];
+                $out->source_id = $row['id'];
+                $out->facet_value_id = $row['facet_value_id'];
+                $out->offset = 0;
+                $out->oid = $store->file->oid;
+                $out->import =  $row['snippet_language'] ? 'snippets' : 'facets'; // snippets always have a language
+                break;
+            }else{
+                error_log("GitHub didn't return file details for {$row['file_path']}");
+            }
         }
 
     }

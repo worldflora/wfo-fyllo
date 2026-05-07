@@ -68,8 +68,10 @@ class FileStore{
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
+        // error_log("Calling: " . $path);
         $json = curl_exec($curl);
         $result = json_decode($json);
+        // error_log("Done call");
 
         if (curl_errno($curl)) {
             $this->error = curl_error($curl);
