@@ -59,6 +59,12 @@
         echo '</div>';
     } 
 
+    // get the basic stats
+    
+
+    $response = $mysqli->query("SELECT count(*) as total, count(last_import) as imported from sources;");
+    $stats = $response->fetch_assoc();
+    $response->close();
 
 ?>
 <script>
@@ -77,7 +83,8 @@
     <p><a href="index.php">Fyllo</a> → Sources</p>
     <h1>Sources</h1>
     <p class="lead">
-        These are all the sources in the system, both for facet values and snippets.
+        These are the <strong><?php echo number_format($stats['total'], 0) ?></strong> sources in the system, both for facet values and snippets.
+        <strong><?php echo number_format($stats['imported'], 0) ?></strong> of these have been imported.
     </p>
     <ul class="list-group">
         <li class="list-group-item">
