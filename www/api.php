@@ -523,7 +523,7 @@ function return_scores_metadata(){
             FROM `wfo_scores` 
             WHERE concat(UNIX_TIMESTAMP(`modified`), '.', value_id, source_id) > $modified_stamp
             AND meta_json is not null 
-            ORDER BY modified, value_id, source_id  
+            ORDER BY modified, wfo_id, value_id, source_id  
             LIMIT 1000;"; 
         $response = $mysqli->query($sql, MYSQLI_USE_RESULT); // we allow for big result set
 
