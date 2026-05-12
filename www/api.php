@@ -524,7 +524,7 @@ function return_scores_metadata(){
             WHERE concat(UNIX_TIMESTAMP(`modified`), '.', value_id, source_id) > $modified_stamp
             AND meta_json is not null 
             ORDER BY modified, wfo_id, value_id, source_id  
-            LIMIT 1000;"; 
+            LIMIT 100;"; 
         $response = $mysqli->query($sql, MYSQLI_USE_RESULT); // we allow for big result set
 
         $solr_docs = array();
