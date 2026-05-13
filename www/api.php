@@ -537,6 +537,7 @@ function return_scores_metadata(){
                 'source_id_s' => $row['source_id'],
                 'value_id_s' => $row['value_id'],
                 'last_modified_d' => (double)$row['last_modified_d'],
+                'last_modified' => $row['modified'],
                 'json_t' => $row['meta_json']
             );
 
