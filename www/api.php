@@ -386,7 +386,7 @@ function return_sources_metadata($since){
         FROM sources 
         WHERE do_not_index = 0
         AND concat_ws('.', UNIX_TIMESTAMP(`modified`), id) > $since
-        ORDER BY last_modified_d");
+        ORDER BY modified, id");
     $sources = $response->fetch_All(MYSQLI_ASSOC);
     $response->close();
 
@@ -453,7 +453,7 @@ function return_facet_metadata($since){
             unset($facet['db_id']);
 
             // we tag with the last mod date in the facets and facet_values
-            // not the mod time stamp includes the primary key as the decimal
+            // not the mod time stamp includes the primary key as the double
             // part of the double because imports may be faster than a second
             $last_modified = (double)$facet['modified']; 
             
@@ -515,15 +515,15 @@ function return_scores_metadata(){
         $solr_docs = array();
 
         // if they haven't set a since the we begin at the start of the epoch
-        if(!isset($_GET['since'])) $modified_stamp = 0.0;
-        else $modified_stamp = (double)$_GET['since'];
+        if(!isset($_GET['since'])) $modified_stamp = 0;
+        else $modified_stamp = floor((double)$_GET['since']);
 
         $sql = "SELECT 
-            `wfo_scores`.*, concat(UNIX_TIMESTAMP(`modified`), '.', value_id, source_id) as last_modified_d  
+            `wfo_scores`.*, concat(UNIX_TIMESTAMP(`modified`), '.', id) as last_modified_d  
             FROM `wfo_scores` 
-            WHERE concat(UNIX_TIMESTAMP(`modified`), '.', value_id, source_id) > $modified_stamp
+            WHERE UNIX_TIMESTAMP(`modified`) > $modified_stamp
             AND meta_json is not null 
-            ORDER BY modified, wfo_id, value_id, source_id  
+            ORDER BY modified, id
             LIMIT 100;"; 
         $response = $mysqli->query($sql, MYSQLI_USE_RESULT); // we allow for big result set
 
@@ -572,9 +572,9 @@ function return_snippets_metadata(){
             `snippets`.*,  
             concat_ws('.', UNIX_TIMESTAMP(`modified`), id) as 'last_modified_d' 
             FROM `snippets`
-            WHERE concat_ws('.', UNIX_TIMESTAMP(`modified`), id) > $modified_stamp 
+            WHERE UNIX_TIMESTAMP(`modified`) > $modified_stamp 
             AND meta_json is not null 
-            ORDER BY last_modified_d  LIMIT 1000;"; 
+            ORDER BY modified, id LIMIT 1000;"; 
 
         //echo $sql; exit;
         $response = $mysqli->query($sql, MYSQLI_USE_RESULT); // we allow for big result set
@@ -587,7 +587,7 @@ function return_snippets_metadata(){
                 'kind_s' => 'wfo-snippet',
                 'wfo_id_s' => $row['wfo_id'],
                 'source_id_s' => $row['source_id'],
-                'last_modified_d' => $row['last_modified_d'],
+                'last_modified_d' => (double)$row['last_modified_d'],
                 'json_t' => $row['meta_json']
             );
 
