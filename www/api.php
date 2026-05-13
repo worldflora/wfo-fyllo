@@ -522,8 +522,6 @@ function return_scores_metadata(){
             list($modified_stamp, $id) = explode('.', $_GET['since']); 
         } 
 
-
-
         $sql = "SELECT 
             `wfo_scores`.*, concat(UNIX_TIMESTAMP(`modified`), '.', id) as last_modified_d  
             FROM `wfo_scores` 
@@ -572,14 +570,17 @@ function return_snippets_metadata(){
         $solr_docs = array();
 
         // if they haven't set a since the we begin at the start of the epoch
-        if(!isset($_GET['since'])) $modified_stamp = 0.0;
-        else $modified_stamp = (double)trim($_GET['since']);
-
+        if(!isset($_GET['since'])){
+            $modified_stamp = 0;
+            $id = 0;
+        }else{
+            list($modified_stamp, $id) = explode('.', $_GET['since']); 
+        } 
         $sql = "SELECT 
             `snippets`.*,  
             concat_ws('.', UNIX_TIMESTAMP(`modified`), id) as 'last_modified_d' 
             FROM `snippets`
-            WHERE `modified` > FROM_UNIXTIME($modified_stamp) 
+            WHERE (`modified` > FROM_UNIXTIME($modified_stamp) OR (`modified` > FROM_UNIXTIME($modified_stamp) AND id > $id ))
             AND meta_json is not null 
             ORDER BY modified, id LIMIT 1000;"; 
 
