@@ -521,7 +521,7 @@ function return_scores_metadata(){
         $sql = "SELECT 
             `wfo_scores`.*, concat(UNIX_TIMESTAMP(`modified`), '.', id) as last_modified_d  
             FROM `wfo_scores` 
-            WHERE `modified` > $modified_stamp
+            WHERE `modified` > FROM_UNIXTIME($modified_stamp)
             AND meta_json is not null 
             ORDER BY modified, id
             LIMIT 1000;"; 
@@ -573,7 +573,7 @@ function return_snippets_metadata(){
             `snippets`.*,  
             concat_ws('.', UNIX_TIMESTAMP(`modified`), id) as 'last_modified_d' 
             FROM `snippets`
-            WHERE `modified` > $modified_stamp 
+            WHERE `modified` > FROM_UNIXTIME($modified_stamp) 
             AND meta_json is not null 
             ORDER BY modified, id LIMIT 1000;"; 
 
