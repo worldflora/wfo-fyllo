@@ -26,9 +26,15 @@ if($post_body || $_GET){
         return_taxon_values(json_decode($post_body));
     }else{
         if(isset($_GET['offset']) && !isset($_GET['import'])){
+
+            // LAST MODIFIED NAMES
             $offset = (int)$_GET['offset']; // maybe zero
             return_last_modified((double)$offset);
+
         }elseif(isset($_GET['metadata'])){
+
+            // METADATA STUFF
+
             switch ($_GET['metadata']) {
                 case 'sources':
                     return_sources_metadata(isset($_GET['since'])? $_GET['since'] : 0);
@@ -48,6 +54,8 @@ if($post_body || $_GET){
             }
    
         }elseif(isset($_GET['import'])){
+
+            // IMPORT STUFF
 
             // set up the values for the indexing - if set
             $out = (object)$_GET;
@@ -107,46 +115,51 @@ function get_next_import_job($out){
 
     global $mysqli;
 
-    $sql = "SELECT `id`, `file_path`, `facet_value_id`, `oid`, `snippet_language`, `last_import` FROM sources WHERE auto_import = 1 ORDER BY last_import ASC;";
-    $response = $mysqli->query($sql, MYSQLI_USE_RESULT);
+    // nulls will come first in the list
+    $sql = "SELECT `id`, `file_path`, `facet_value_id`, `oid`, `snippet_language`, `last_import` FROM sources WHERE auto_import = 1 ORDER BY last_github_check ASC, last_import ASC LIMIT 1;";
+    $response = $mysqli->query($sql);
 
     $out->import = null;
     $store = null;
-    while($row = $response->fetch_assoc()){
+    $rows = $response->fetch_all(MYSQL_ASSOC);
+    $row = $rows[0];
 
-        // has the github file changed.
+    // Get the file object - will call github 
+    $store = new FileStore($row['file_path']);
 
-        $store = new FileStore($row['file_path']);
-
-        if(
-            !$row['last_import'] // never been imported
-            ||
-            (isset($store->file) && $store->file && $store->file->oid != $row['oid']) // previously imported but changed.
-        ){
-            // bingo we have a wrongun
-            // does the file link correctly?
-            if(isset($store->file) && $store->file){
-                $out->remote_file_path = $row['file_path'];
-                $out->source_id = $row['id'];
-                $out->facet_value_id = $row['facet_value_id'];
-                $out->offset = 0;
-                $out->oid = $store->file->oid;
-                $out->import =  $row['snippet_language'] ? 'snippets' : 'facets'; // snippets always have a language
-                break;
-            }else{
-                error_log("GitHub didn't return file details for {$row['file_path']}");
-            }
+    if(
+        !$row['last_import'] // never been imported
+        ||
+        (isset($store->file) && $store->file && $store->file->oid != $row['oid']) // previously imported but changed.
+    ){
+        // bingo we have a wrongun
+        // does the file link correctly?
+        if(isset($store->file) && $store->file){
+            $out->remote_file_path = $row['file_path'];
+            $out->source_id = $row['id'];
+            $out->facet_value_id = $row['facet_value_id'];
+            $out->offset = 0;
+            $out->oid = $store->file->oid;
+            $out->import =  $row['snippet_language'] ? 'snippets' : 'facets'; // snippets always have a language
+        }else{
+            error_log("GitHub didn't return file details for {$row['file_path']}");
         }
-
     }
 
-    $local_file_dir = "../data/session_data/api";
-    @mkdir($local_file_dir, 0777,true);
-
+    // if we have an import to do we download the file before returning to the import page
+    // through mechanism
     if($store && $out->import){
+        
+        $local_file_dir = "../data/session_data/api";
+        @mkdir($local_file_dir, 0777,true);
+
         // we've got a store and a local file we have downloaded.
         $out->local_file_path =  $store->downloadFile($local_file_dir);
+    
     }
+
+    // no matter what we do we mark this as having been checked on github so we don't check it again till after the others
+    $response = $mysqli->query("UPDATE `sources` SET `last_github_check` = NOW() WHERE `id` = {$row['id']};");
 
     return $out;
 
