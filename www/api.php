@@ -528,7 +528,7 @@ function return_scores_metadata(){
             WHERE (`modified` > FROM_UNIXTIME($modified_stamp) OR (`modified` > FROM_UNIXTIME($modified_stamp) AND id > $id ))
             AND meta_json is not null 
             ORDER BY modified, id
-            LIMIT 2000;"; 
+            LIMIT 5000;"; 
         $response = $mysqli->query($sql, MYSQLI_USE_RESULT); // we allow for big result set
 
         $solr_docs = array();
