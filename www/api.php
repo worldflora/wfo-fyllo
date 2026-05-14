@@ -118,11 +118,11 @@ function get_next_import_job($out){
     // nulls will come first in the list
     $sql = "SELECT `id`, `file_path`, `facet_value_id`, `oid`, `snippet_language`, `last_import` FROM sources WHERE auto_import = 1 ORDER BY last_github_check ASC, last_import ASC LIMIT 1;";
     $response = $mysqli->query($sql);
+    $rows = $response->fetch_all(MYSQLI_ASSOC);
+    $row = $rows[0];
 
     $out->import = null;
     $store = null;
-    $rows = $response->fetch_all(MYSQL_ASSOC);
-    $row = $rows[0];
 
     // Get the file object - will call github 
     $store = new FileStore($row['file_path']);
