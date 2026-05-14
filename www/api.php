@@ -159,7 +159,8 @@ function get_next_import_job($out){
     }
 
     // no matter what we do we mark this as having been checked on github so we don't check it again till after the others
-    $response = $mysqli->query("UPDATE `sources` SET `last_github_check` = NOW() WHERE `id` = {$row['id']};");
+    // don't update the modified timestamp - or we keep reindexing the source!
+    $response = $mysqli->query("UPDATE `sources` SET `last_github_check` = NOW(), modified = modified WHERE `id` = {$row['id']};");
 
     return $out;
 
