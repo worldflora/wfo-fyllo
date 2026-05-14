@@ -382,6 +382,8 @@ function return_sources_metadata($since){
 
     $solr_docs = array();
 
+    list($modified_stamp, $id) = explode('.', $since); 
+
     // we create solr docs as near as damn it 
     // in the query
     $response = $mysqli->query("SELECT 
@@ -398,7 +400,7 @@ function return_sources_metadata($since){
          concat_ws('.', UNIX_TIMESTAMP(`modified`), id) as 'last_modified_d'
         FROM sources 
         WHERE do_not_index = 0
-        AND concat_ws('.', UNIX_TIMESTAMP(`modified`), id) > $since
+        AND (`modified` > FROM_UNIXTIME($modified_stamp) OR (`modified` = FROM_UNIXTIME($modified_stamp) AND id > $id ))
         ORDER BY modified, id");
     $sources = $response->fetch_All(MYSQLI_ASSOC);
     $response->close();
@@ -538,7 +540,7 @@ function return_scores_metadata(){
         $sql = "SELECT 
             `wfo_scores`.*, concat(UNIX_TIMESTAMP(`modified`), '.', id) as last_modified_d  
             FROM `wfo_scores` 
-            WHERE (`modified` > FROM_UNIXTIME($modified_stamp) OR (`modified` > FROM_UNIXTIME($modified_stamp) AND id > $id ))
+            WHERE (`modified` > FROM_UNIXTIME($modified_stamp) OR (`modified` = FROM_UNIXTIME($modified_stamp) AND id > $id ))
             AND meta_json is not null 
             ORDER BY modified, id
             LIMIT 5000;"; 
@@ -593,7 +595,7 @@ function return_snippets_metadata(){
             `snippets`.*,  
             concat_ws('.', UNIX_TIMESTAMP(`modified`), id) as 'last_modified_d' 
             FROM `snippets`
-            WHERE (`modified` > FROM_UNIXTIME($modified_stamp) OR (`modified` > FROM_UNIXTIME($modified_stamp) AND id > $id ))
+            WHERE (`modified` > FROM_UNIXTIME($modified_stamp) OR (`modified` = FROM_UNIXTIME($modified_stamp) AND id > $id ))
             AND meta_json is not null 
             ORDER BY modified, id LIMIT 1000;"; 
 
