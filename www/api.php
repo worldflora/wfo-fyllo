@@ -503,6 +503,7 @@ function return_facet_metadata($since){
                     'id'=> $facet['id'],
                     'kind_s' => 'wfo-facet',
                     'last_modified_d' => $last_modified,
+                    'fyllo_last_indexed_dt' => (new DateTimeImmutable())->format('Y-m-d\TH:i:s\Z'), // useful to have the last mod as a date uniform across all solr docs.
                     'json_t' => json_encode((object)$facet)
                     );
             }
