@@ -242,11 +242,14 @@ function get_taxon_values($graph){
         // is there a field to hold the data for this facet?
         $facet_field_name = "wfo-f-{$facet['facet_id']}_ss";
         $provenance_field_name = "wfo-fv-{$facet['facet_value_id']}_provenance_ss";
+        $provenance_meta_field_name = "wfo-fv-{$facet['facet_value_id']}_provenance_meta_txt";
+        
         $text_field_name = "wfo-f-{$facet['facet_id']}_t";
 
         if(!isset($doc->{$facet_field_name})){
             $doc->{$facet_field_name} = array();
             $doc->{$provenance_field_name} = array();
+            $doc->{$provenance_meta_field_name} = array();
             $doc->{$text_field_name} = $facet['facet_name'] . " : ";
         }
 
@@ -263,6 +266,10 @@ function get_taxon_values($graph){
         $prov = "{$facet['wfo_id']}-s-{$facet['source_id']}-{$facet['scored_via']}";
         if(!isset($doc->{$provenance_field_name})) $doc->{$provenance_field_name} = array();
         if(!in_array($prov, $doc->{$provenance_field_name})) $doc->{$provenance_field_name}[] = $prov;
+
+        if(!isset($doc->{$provenance_meta_field_name})) $doc->{$provenance_meta_field_name} = array();
+        if(!in_array($prov, $doc->{$provenance_meta_field_name})) $doc->{$provenance_meta_field_name}[] = $facet['meta_json'];
+
 
     }
 
@@ -345,7 +352,8 @@ function get_facets_for_wfo_ids($wfo_ids, $scored_via){
         s.id as source_id,
         s.`name` as source_name,
         '{$scored_via}'  as 'scored_via',
-        '{$wfo_ids[0]}' as 'wfo_id'
+        '{$wfo_ids[0]}' as 'wfo_id',
+        ws.meta_json
     FROM wfo_scores as ws
     JOIN facet_values AS fv ON ws.value_id = fv.id
     JOIN facets AS f ON fv.facet_id = f.id

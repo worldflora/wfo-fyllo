@@ -166,6 +166,8 @@ function get_taxon_graph($wfo_id){
             exit;
         }
 
+
+
         $out = array();
         $out['classification'] = $result->currentPreferredUsage->classificationId;
         $out['taxon'] = array_merge(array($result->currentPreferredUsage->hasName->id), $result->currentPreferredUsage->hasName->wfoIdsDeduplicated);
@@ -176,13 +178,11 @@ function get_taxon_graph($wfo_id){
             if($anc->hasName->id == $wfo_id) continue;
             $out['path'][] = array_merge(array($anc->hasName->id), $anc->hasName->wfoIdsDeduplicated) ;
         }
-
         // the synonyms 
         $out['synonyms'] = array();
         foreach ($result->currentPreferredUsage->hasSynonym as $syn) {
             $out['synonyms'][] = array_merge(array($syn->id), $syn->wfoIdsDeduplicated);
         }
-        
         return (object)$out;
 
 }
