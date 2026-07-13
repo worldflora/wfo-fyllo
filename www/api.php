@@ -551,6 +551,7 @@ function return_scores_metadata(){
             $modified_stamp = 0;
             $id = 0;
         }else{
+            $since = $_GET['since'];
             if(preg_match('/^[0-9]+\.[0-9]+$/', $since)){
                 list($modified_stamp, $id) = explode('.', $since); 
             }else{
