@@ -289,7 +289,8 @@ function get_taxon_values($graph){
     $doc->snippet_text_ids_ss = array(); // the id of this snippet - used to recover the metadata for this snippet
     $doc->snippet_text_sources_ss = array(); // the id of this snippet source so we can facet on it
     $doc->snippet_text_bodies_txt = array(); // actual blocks of text 
-
+    $doc->snippet_text_bodies_meta_txt = array(); // json of the metadata for the snippet
+    
     // add the main taxon
     add_snippets_for_wfo_id($doc, $graph->taxon);
 
@@ -311,7 +312,7 @@ function add_snippets_for_wfo_id($doc, $wfo_ids){
         $ids_string = "'" . implode("','", $wfo_ids) . "'";
 
         $response = $mysqli->query("SELECT 
-            s.id, s.source_id, s.body, ss.`snippet_category` as 'category', ss.`snippet_language` as 'language' 
+            s.id, s.source_id, s.body, ss.`snippet_category` as 'category', ss.`snippet_language` as 'language', meta_json 
             FROM snippets as s 
             JOIN sources as ss on s.source_id = ss.id 
             WHERE s.wfo_id in ({$ids_string})
@@ -323,7 +324,8 @@ function add_snippets_for_wfo_id($doc, $wfo_ids){
             $doc->snippet_text_languages_ss[] = $row['language']; // the language the snippet is in
             $doc->snippet_text_ids_ss[] = 'wfo-snippet-' . $row['id']; // the id of this snippet - used to recover the metadata (including data source) for this snippet
             $doc->snippet_text_sources_ss[] = 'wfo-ss-' . $row['source_id']; // the id of this snippet - used to recover the metadata (including data source) for this snippet
-            $doc->snippet_text_bodies_txt[] = $row['body']; // actual blocks of text 
+            $doc->snippet_text_bodies_txt[] = $row['body']; // actual blocks of text
+            $doc->snippet_text_bodies_meta_txt[] = $row['meta_json']; // json of the metadata
         }
 
 }
