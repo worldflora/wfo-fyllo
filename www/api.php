@@ -376,7 +376,6 @@ function get_facets_for_wfo_ids($wfo_ids, $scored_via){
 }
 
 
-
 function return_sources_metadata($since){
    
     global $mysqli;
@@ -552,7 +551,14 @@ function return_scores_metadata(){
             $modified_stamp = 0;
             $id = 0;
         }else{
-            list($modified_stamp, $id) = explode('.', $_GET['since']); 
+            if(preg_match('/^[0-9]+\.[0-9]+$/', $since)){
+                list($modified_stamp, $id) = explode('.', $since); 
+            }else{
+                // we are sent zero to start indexing from scratch
+                // or they just didn't supply a decimal
+                $modified_stamp = $since;
+                $id = 0;
+            }
         } 
 
         $sql = "SELECT 
