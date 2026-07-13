@@ -383,6 +383,8 @@ function return_sources_metadata($since){
 
     $solr_docs = array();
 
+    $just_now = (new DateTimeImmutable())->format('Y-m-d\TH:i:s\Z'); 
+
     list($modified_stamp, $id) = explode('.', $since); 
 
     // we create solr docs as near as damn it 
@@ -406,6 +408,8 @@ function return_sources_metadata($since){
     $sources = $response->fetch_All(MYSQLI_ASSOC);
     $response->close();
 
+    $just_now = (new DateTimeImmutable())->format('Y-m-d\TH:i:s\Z');
+
     foreach ($sources as $s) {
 
         // are we doing a snippet or a facet source
@@ -414,6 +418,7 @@ function return_sources_metadata($since){
                 'id'=> 'wfo-ss-' . $s['id'],
                 'kind_s' => 'wfo-snippet-source',
                 'last_modified_d' => (double)$s['last_modified_d'],
+                'fyllo_last_indexed_dt' => $just_now, // useful to have the last mod as a date uniform across all solr docs.
                 'json_t' => json_encode((object)$s)
             );
         }else{
@@ -421,6 +426,7 @@ function return_sources_metadata($since){
                 'id'=> 'wfo-fs-' . $s['id'],
                 'kind_s' => 'wfo-facet-source',
                 'last_modified_d' => (double)$s['last_modified_d'],
+                'fyllo_last_indexed_dt' => $just_now, // useful to have the last mod as a date uniform across all solr docs.
                 'json_t' => json_encode((object)$s)
             );
         }
@@ -461,6 +467,7 @@ function return_facet_metadata($since){
         $facets = $response->fetch_All(MYSQLI_ASSOC);
         $response->close();
 
+        $just_now = (new DateTimeImmutable())->format('Y-m-d\TH:i:s\Z');
 
         foreach($facets as $facet){
 
@@ -503,7 +510,7 @@ function return_facet_metadata($since){
                     'id'=> $facet['id'],
                     'kind_s' => 'wfo-facet',
                     'last_modified_d' => $last_modified,
-                    'fyllo_last_indexed_dt' => (new DateTimeImmutable())->format('Y-m-d\TH:i:s\Z'), // useful to have the last mod as a date uniform across all solr docs.
+                    'fyllo_last_indexed_dt' => $just_now, // useful to have the last mod as a date uniform across all solr docs.
                     'json_t' => json_encode((object)$facet)
                     );
             }
@@ -528,6 +535,8 @@ function return_scores_metadata(){
         global $mysqli;
 
         set_time_limit(120); // this can be slow
+
+        $just_now = (new DateTimeImmutable())->format('Y-m-d\TH:i:s\Z'); 
 
         $solr_docs = array();
 
@@ -559,6 +568,7 @@ function return_scores_metadata(){
                 'value_id_s' => $row['value_id'],
                 'last_modified_d' => (double)$row['last_modified_d'],
                 'last_modified' => $row['modified'],
+                'fyllo_last_indexed_dt' => $just_now, // useful to have the last mod as a date uniform across all solr docs.
                 'json_t' => $row['meta_json']
             );
 
@@ -583,6 +593,8 @@ function return_scores_metadata(){
 function return_snippets_metadata(){
         
         global $mysqli;
+
+        $just_now = (new DateTimeImmutable())->format('Y-m-d\TH:i:s\Z'); 
 
         $solr_docs = array();
 
@@ -613,6 +625,7 @@ function return_snippets_metadata(){
                 'wfo_id_s' => $row['wfo_id'],
                 'source_id_s' => $row['source_id'],
                 'last_modified_d' => (double)$row['last_modified_d'],
+                'fyllo_last_indexed_dt' => $just_now, // useful to have the last mod as a date uniform across all solr docs.
                 'json_t' => $row['meta_json']
             );
 
