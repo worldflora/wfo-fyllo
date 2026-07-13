@@ -306,7 +306,7 @@ function add_snippets_for_wfo_id($doc, $wfo_ids){
             $doc->snippet_text_name_ids_ss[] = $wfo_ids[0]; // the WFO ID of the name the snippet is attached to
             $doc->snippet_text_categories_ss[] = $row['category']; // the category the snippet is
             $doc->snippet_text_languages_ss[] = $row['language']; // the language the snippet is in
-            $doc->snippet_text_modified_ss[] = $row['modified']; // when it was modified = imported
+            $doc->snippet_text_imported_ss[] = $row['modified']; // when it was modified = imported
             $doc->snippet_text_sources_ss[] = 'wfo-ss-' . $row['source_id']; // the id of this snippet - used to recover the metadata (including data source) for this snippet
             $doc->snippet_text_bodies_txt[] = $row['body']; // actual blocks of text
             $doc->snippet_text_bodies_meta_txt[] = $row['meta_json']; // json of the metadata
