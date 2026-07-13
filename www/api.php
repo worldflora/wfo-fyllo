@@ -385,8 +385,15 @@ function return_sources_metadata($since){
 
     $just_now = (new DateTimeImmutable())->format('Y-m-d\TH:i:s\Z'); 
 
-    list($modified_stamp, $id) = explode('.', $since); 
-
+    if(preg_match('/^[0-9]+\.[0-9]+$/', $since)){
+        list($modified_stamp, $id) = explode('.', $since); 
+    }else{
+        // we are sent zero to start indexing from scratch
+        // or they just didn't supply a decimal
+        $modified_stamp = $since;
+        $id = 0;
+    }
+ 
     // we create solr docs as near as damn it 
     // in the query
     $response = $mysqli->query("SELECT 
