@@ -34,20 +34,13 @@ if($post_body || $_GET){
         }elseif(isset($_GET['metadata'])){
 
             // METADATA STUFF
-
             switch ($_GET['metadata']) {
                 case 'sources':
                     return_sources_metadata(isset($_GET['since'])? $_GET['since'] : 0);
                     break;
                 case 'facets':
                     return_facet_metadata(isset($_GET['since'])? $_GET['since'] : 0);
-                    break;        
-                case 'scores':
-                    return_scores_metadata();
-                    break; 
-                case 'snippets':
-                    return_snippets_metadata();
-                    break; 
+                    break;
                 default:
                     echo "Un-specified metadata ";
                     break;
@@ -538,131 +531,6 @@ function return_facet_metadata($since){
         // add a label 
         $out = array(
             'kind' => 'facets-metadata',
-            'docs' => $solr_docs
-        );
-
-        echo json_encode($out);
-        exit;
-
-}
-
-function return_scores_metadata(){
-        
-        global $mysqli;
-
-        set_time_limit(120); // this can be slow
-
-        $just_now = (new DateTimeImmutable())->format('Y-m-d\TH:i:s\Z'); 
-
-        $solr_docs = array();
-
-        // if they haven't set a since the we begin at the start of the epoch
-        if(!isset($_GET['since'])){
-            $modified_stamp = 0;
-            $id = 0;
-        }else{
-            $since = $_GET['since'];
-            if(preg_match('/^[0-9]+\.[0-9]+$/', $since)){
-                list($modified_stamp, $id) = explode('.', $since); 
-            }else{
-                // we are sent zero to start indexing from scratch
-                // or they just didn't supply a decimal
-                $modified_stamp = $since;
-                $id = 0;
-            }
-        } 
-
-        $sql = "SELECT 
-            `wfo_scores`.*, concat(UNIX_TIMESTAMP(`modified`), '.', id) as last_modified_d  
-            FROM `wfo_scores` 
-            WHERE (`modified` > FROM_UNIXTIME($modified_stamp) OR (`modified` = FROM_UNIXTIME($modified_stamp) AND id > $id ))
-            AND meta_json is not null 
-            ORDER BY modified, id
-            LIMIT 5000;"; 
-        $response = $mysqli->query($sql, MYSQLI_USE_RESULT); // we allow for big result set
-
-        $solr_docs = array();
-        while($row = $response->fetch_assoc()){
-
-            $solr_doc = array(
-                'id' => "wfo-fvs-{$row['wfo_id']}-{$row['source_id']}-{$row['value_id']}",
-                'kind_s' => 'wfo-facet-value-score',
-                'wfo_id_s' => $row['wfo_id'],
-                'source_id_s' => $row['source_id'],
-                'value_id_s' => $row['value_id'],
-                'last_modified_d' => (double)$row['last_modified_d'],
-                'last_modified' => $row['modified'],
-                'fyllo_last_indexed_dt' => $just_now, // useful to have the last mod as a date uniform across all solr docs.
-                'json_t' => $row['meta_json']
-            );
-
-            $solr_docs[] = $solr_doc;
-
-        }
-
-        header('Content-Type: application/json');
-
-        // add a label 
-        $out = array(
-            'kind' => 'scores-metadata',
-            'modified-stamp' => $modified_stamp,
-            'docs' => $solr_docs
-        );
-
-        echo json_encode($out);
-        exit;
-
-}
-
-function return_snippets_metadata(){
-        
-        global $mysqli;
-
-        $just_now = (new DateTimeImmutable())->format('Y-m-d\TH:i:s\Z'); 
-
-        $solr_docs = array();
-
-        // if they haven't set a since the we begin at the start of the epoch
-        if(!isset($_GET['since'])){
-            $modified_stamp = 0;
-            $id = 0;
-        }else{
-            list($modified_stamp, $id) = explode('.', $_GET['since']); 
-        } 
-        $sql = "SELECT 
-            `snippets`.*,  
-            concat_ws('.', UNIX_TIMESTAMP(`modified`), id) as 'last_modified_d' 
-            FROM `snippets`
-            WHERE (`modified` > FROM_UNIXTIME($modified_stamp) OR (`modified` = FROM_UNIXTIME($modified_stamp) AND id > $id ))
-            AND meta_json is not null 
-            ORDER BY modified, id LIMIT 1000;"; 
-
-        //echo $sql; exit;
-        $response = $mysqli->query($sql, MYSQLI_USE_RESULT); // we allow for big result set
-
-        $solr_docs = array();
-        while($row = $response->fetch_assoc()){
-
-            $solr_doc = array(
-                'id' => "wfo-snippet-{$row['id']}",
-                'kind_s' => 'wfo-snippet',
-                'wfo_id_s' => $row['wfo_id'],
-                'source_id_s' => $row['source_id'],
-                'last_modified_d' => (double)$row['last_modified_d'],
-                'fyllo_last_indexed_dt' => $just_now, // useful to have the last mod as a date uniform across all solr docs.
-                'json_t' => $row['meta_json']
-            );
-
-            $solr_docs[] = $solr_doc;
-
-        }
-
-        header('Content-Type: application/json');
-
-        // add a label 
-        $out = array(
-            'kind' => 'snippets-metadata',
-            'modified-stamp' => $modified_stamp,
             'docs' => $solr_docs
         );
 
