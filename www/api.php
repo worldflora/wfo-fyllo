@@ -267,19 +267,10 @@ function get_taxon_values($graph){
     }
 
     // ADD IN THE SNIPPETS
-    /*
-        snippet_text_categories_ss The catagory (subject) of the snippet. e.g. morphology or distribution.
-        snippet_text_languages_ss The lanuage the snippet is in.
-        snippet_text_name_ids_ss The WFO IDs that the snippets were attached to (maybe synonym of the taxon remember)
-        snippet_text_ids_ss The ids of the snippets so that we can recover the snippet that is stored as a separate document in the
-        snippet_text_bodies_txt The content of the snippets. These are not rendered but here so we can search by text.
-        snippet_text_sources_ss The id of the source so we can facet on it.
-    */
-
     $doc->snippet_text_categories_ss = array(); // the category the snippet is
     $doc->snippet_text_languages_ss = array(); // the language the snippet is in
     $doc->snippet_text_name_ids_ss = array(); // the WFO ID of the name the snippet is attached to
-    $doc->snippet_text_ids_ss = array(); // the id of this snippet - used to recover the metadata for this snippet
+    $doc->snippet_text_imported_ss = array(); // the when it was impored
     $doc->snippet_text_sources_ss = array(); // the id of this snippet source so we can facet on it
     $doc->snippet_text_bodies_txt = array(); // actual blocks of text 
     $doc->snippet_text_bodies_meta_txt = array(); // json of the metadata for the snippet
@@ -305,7 +296,7 @@ function add_snippets_for_wfo_id($doc, $wfo_ids){
         $ids_string = "'" . implode("','", $wfo_ids) . "'";
 
         $response = $mysqli->query("SELECT 
-            s.id, s.source_id, s.body, ss.`snippet_category` as 'category', ss.`snippet_language` as 'language', meta_json 
+            s.id, s.source_id, s.body, ss.`snippet_category` as 'category', ss.`snippet_language` as 'language', meta_json, s.modified 
             FROM snippets as s 
             JOIN sources as ss on s.source_id = ss.id 
             WHERE s.wfo_id in ({$ids_string})
@@ -315,7 +306,7 @@ function add_snippets_for_wfo_id($doc, $wfo_ids){
             $doc->snippet_text_name_ids_ss[] = $wfo_ids[0]; // the WFO ID of the name the snippet is attached to
             $doc->snippet_text_categories_ss[] = $row['category']; // the category the snippet is
             $doc->snippet_text_languages_ss[] = $row['language']; // the language the snippet is in
-            $doc->snippet_text_ids_ss[] = 'wfo-snippet-' . $row['id']; // the id of this snippet - used to recover the metadata (including data source) for this snippet
+            $doc->snippet_text_modified_ss[] = $row['modified']; // when it was modified = imported
             $doc->snippet_text_sources_ss[] = 'wfo-ss-' . $row['source_id']; // the id of this snippet - used to recover the metadata (including data source) for this snippet
             $doc->snippet_text_bodies_txt[] = $row['body']; // actual blocks of text
             $doc->snippet_text_bodies_meta_txt[] = $row['meta_json']; // json of the metadata
@@ -719,7 +710,7 @@ function render_documentation_page(){
             "wfo-0000632146"
         ],
         "snippet_text_ids_ss": [
-            "wfo-snippet-21500"
+            "wfo-snippet-21500" FIXME
         ],
         "snippet_text_sources_ss": [
             "wfo-ss-1803"
