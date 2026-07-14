@@ -196,8 +196,12 @@ function get_taxon_values($graph){
     $doc->taxon = $graph->taxon[0];
     $doc->classification = $graph->classification;
 
-    // BUILD THE FACETS FIRST
+    // we capture where data has come from for this taxon
+    // so that we can facet on that if needed
+    $doc->content_source_ids_is = array();
+    $doc->content_source_names_ss = array();
 
+    // BUILD THE FACETS FIRST
     $facets = array();
 
     // do the taxon itself
@@ -213,67 +217,50 @@ function get_taxon_values($graph){
         $facets = array_merge($facets, get_facets_for_wfo_ids($syn, 'synonym'));
     }
 
-    // convert the data for the facets into a document for the taxon
-    /*
-        wfo-f-*_ss A faceting field. * is the db id of the facet. Contains the values of this facet for this taxon in the form wfo-fv-*. This is the id of the facet document containing the metadata for the facet (see below). Adding "_provenance_ss" to the end give the field containing the provenance in this document.
-        wfo-fv-*_provenance_ss A string that can be parsed to give the provenance of the facet value scoring. * is the db id of the facet value.
-        wfo-f-*_t The text of the facet values present in this taxon. Enables freetext search by facet. Not used for rendering.
+    // all facets go in the same field
+    $doc->facet_names_ss = array(); 
+    $doc->facet_values_ss = array(); 
     
-                        [facet_id] => 5
-                    [facet_name] => Life Form
-                    [heritable] => 1
-                    [facet_value_id] => 1887
-                    [facet_value_name] => Annual
-                    [source_id] => 1554
-                    [source_name] => WCVP Life Form: Annual
-                    [scored_via] => synonym
-                    [wfo_id] => wfo-0000540604
-        */
+
+    // we store the facet metadata in a single object
+    $doc->facets_metadata_t = json_encode($facets);
 
     foreach ($facets as $facet) {
 
-        // is there a field to hold the data for this facet?
-        $facet_field_name = "wfo-f-{$facet['facet_id']}_ss";
-        $provenance_field_name = "wfo-fv-{$facet['facet_value_id']}_provenance_ss";
-        $provenance_meta_field_name = "wfo-fv-{$facet['facet_value_id']}_provenance_meta_txt";
+        // store the facet names - just incase. 
+        // we include the facet_id so that we can use it as a
+        // faceting prefix on the facet_values field if needed
+        $facetting_name = "{$facet['facet_name']} ~ {$facet['facet_id']}";
+        // it should only be in once but may occur many times in list of facets
+        if(!in_array( $facetting_name, $doc->facet_names_ss))$doc->facet_names_ss[] = $facetting_name;
+
+        // now store the facet value
+
+        // the prefix enables us to narrow the search using facet-prefixing
+        $value_prefix = "{$facet['facet_id']}-{$facet['facet_value_id']}";
+
+        // value put in the faceting field is prefix plus value name - but only once
+        // using ~ as the separator
+        // we don't care about the facet name itself, which is in the 
+        $facetting_value = "{$value_prefix} ~ {$facet['facet_value_name']}";
+        // occurs only once in faceting field even though it may have been scored so by
+        // many datasources
+        if(!in_array( $facetting_value, $doc->facet_values_ss)) $doc->facet_values_ss[] = $facetting_value;
         
-        $text_field_name = "wfo-f-{$facet['facet_id']}_t";
 
-        if(!isset($doc->{$facet_field_name})){
-            $doc->{$facet_field_name} = array();
-            $doc->{$provenance_field_name} = array();
-            $doc->{$provenance_meta_field_name} = array();
-            $doc->{$text_field_name} = $facet['facet_name'] . " : ";
-        }
-
-        // if we haven't added it already add the facet value
-        $facet_value_tag = 'wfo-fv-' . $facet['facet_value_id'];
-        if(!in_array( $facet_value_tag, $doc->{$facet_field_name})){
-            $doc->{$facet_field_name}[] =  $facet_value_tag;
-            $doc->{$text_field_name} .= ' ' . $facet['facet_value_name'];
-        } 
-
-        // add the provenance for this facet value
-        // name_scored-source_scored_id-via a synonym/ancestor/direct
-
-        $prov = "{$facet['wfo_id']}-s-{$facet['source_id']}-{$facet['scored_via']}";
-        if(!isset($doc->{$provenance_field_name})) $doc->{$provenance_field_name} = array();
-        if(!in_array($prov, $doc->{$provenance_field_name})) $doc->{$provenance_field_name}[] = $prov;
-
-        if(!isset($doc->{$provenance_meta_field_name})) $doc->{$provenance_meta_field_name} = array();
-        if(!in_array($prov, $doc->{$provenance_meta_field_name})) $doc->{$provenance_meta_field_name}[] = $facet['meta_json'];
-
-
+        // add the source data if it isn't there
+        if(!in_array( $facet['source_id'], $doc->content_source_ids_is)) $doc->content_source_ids_is[] = $facet['source_id'];
+        if(!in_array( $facet['source_name'], $doc->content_source_names_ss)) $doc->content_source_names_ss[] = $facet['source_name'];
+ 
     }
 
     // ADD IN THE SNIPPETS
-    $doc->snippet_text_categories_ss = array(); // the category the snippet is
-    $doc->snippet_text_languages_ss = array(); // the language the snippet is in
-    $doc->snippet_text_name_ids_ss = array(); // the WFO ID of the name the snippet is attached to
-    $doc->snippet_text_imported_ss = array(); // the when it was impored
-    $doc->snippet_text_sources_ss = array(); // the id of this snippet source so we can facet on it
-    $doc->snippet_text_bodies_txt = array(); // actual blocks of text 
-    $doc->snippet_text_bodies_meta_txt = array(); // json of the metadata for the snippet
+    $doc->snippet_categories_ss = array(); // the category the snippet is
+    $doc->snippet_languages_ss = array(); // the language the snippet is in
+    $doc->snippet_name_ids_ss = array(); // the WFO ID of the name the snippet is attached to
+    $doc->snippet_imported_ss = array(); // the when it was impored
+    $doc->snippet_bodies_txt = array(); // actual blocks of text 
+    $doc->snippet_bodies_meta_txt = array(); // json of the metadata for the snippet
     
     // add the main taxon
     add_snippets_for_wfo_id($doc, $graph->taxon);
@@ -296,20 +283,25 @@ function add_snippets_for_wfo_id($doc, $wfo_ids){
         $ids_string = "'" . implode("','", $wfo_ids) . "'";
 
         $response = $mysqli->query("SELECT 
-            s.id, s.source_id, s.body, ss.`snippet_category` as 'category', ss.`snippet_language` as 'language', meta_json, s.modified 
+            s.id, s.source_id, ss.name as source_name, s.body, ss.`snippet_category` as 'category', ss.`snippet_language` as 'language', meta_json, s.modified 
             FROM snippets as s 
             JOIN sources as ss on s.source_id = ss.id 
             WHERE s.wfo_id in ({$ids_string})
             AND (ss.do_not_index is NULL || ss.do_not_index = 0)");
 
         while($row = $response->fetch_assoc()){
-            $doc->snippet_text_name_ids_ss[] = $wfo_ids[0]; // the WFO ID of the name the snippet is attached to
-            $doc->snippet_text_categories_ss[] = $row['category']; // the category the snippet is
-            $doc->snippet_text_languages_ss[] = $row['language']; // the language the snippet is in
-            $doc->snippet_text_imported_ss[] = $row['modified']; // when it was modified = imported
-            $doc->snippet_text_sources_ss[] = 'wfo-ss-' . $row['source_id']; // the id of this snippet - used to recover the metadata (including data source) for this snippet
-            $doc->snippet_text_bodies_txt[] = $row['body']; // actual blocks of text
-            $doc->snippet_text_bodies_meta_txt[] = $row['meta_json']; // json of the metadata
+            $doc->snippet_name_ids_ss[] = $wfo_ids[0]; // the WFO ID of the name the snippet is attached to
+            $doc->snippet_categories_ss[] = $row['category']; // the category the snippet is
+            $doc->snippet_languages_ss[] = $row['language']; // the language the snippet is in
+            $doc->snippet_imported_ss[] = $row['modified']; // when it was modified = imported
+            $doc->snippet_bodies_txt[] = $row['body']; // actual blocks of text
+            $doc->snippet_bodies_metadata_txt[] = $row['meta_json']; // json of the metadata
+            
+            // content sources fields are shared with facets so we can filter on who 
+            // has contributed to this taxon
+            if(!in_array( $row['source_id'], $doc->content_source_ids_is)) $doc->content_source_ids_is[] = $row['source_id'];
+            if(!in_array( $row['source_name'], $doc->content_source_names_ss)) $doc->content_source_names_ss[] = $row['source_name'];
+
         }
 
 }
@@ -353,6 +345,13 @@ function get_facets_for_wfo_ids($wfo_ids, $scored_via){
     $response = $mysqli->query($sql);
     $facets = $response->fetch_all(MYSQLI_ASSOC);
     $response->close();
+
+    // run through and decode the json or we end up in double encoded json when we 
+    // encode the whole facet later
+    for ($i=0; $i < count($facets); $i++) { 
+        $facets[$i]['score_meta_data'] = json_decode($facets[$i]['meta_json']);
+        unset($facets[$i]['meta_json']);
+    }
     
     $facets_cache[$wfo_ids[0]] = $facets;
 
@@ -415,7 +414,7 @@ function return_sources_metadata($since){
         // are we doing a snippet or a facet source
         if($s['category']){
             $solr_docs[] = (object)array(
-                'id'=> 'wfo-ss-' . $s['id'],
+                'id'=> 'ds-' . $s['id'],
                 'kind_s' => 'wfo-snippet-source',
                 'last_modified_d' => (double)$s['last_modified_d'],
                 'fyllo_last_indexed_dt' => $just_now, // useful to have the last mod as a date uniform across all solr docs.
@@ -423,7 +422,7 @@ function return_sources_metadata($since){
             );
         }else{
             $solr_docs[] = (object)array(
-                'id'=> 'wfo-fs-' . $s['id'],
+                'id'=> 'ds-' .  $s['id'],
                 'kind_s' => 'wfo-facet-source',
                 'last_modified_d' => (double)$s['last_modified_d'],
                 'fyllo_last_indexed_dt' => $just_now, // useful to have the last mod as a date uniform across all solr docs.
@@ -648,78 +647,7 @@ function render_documentation_page(){
    The return structure is similar to that required to update a SOLR index.
 <code>
 <pre>
-[
-    {
-        "taxon": "wfo-0000632146",
-        "classification": "9999-01",
-        "wfo-f-2_ss": [
-            "wfo-fv-52",
-            "wfo-fv-72",
-            "wfo-fv-182"
-        ],
-        "wfo-fv-52_provenance_ss": [
-            "wfo-0000632146-s-60-direct",
-            "wfo-0000632146-s-64-direct",
-            "wfo-0000632146-s-65-direct"
-        ],
-        "wfo-f-2_t": "Countries (ISO) :  Chile [CL] Ecuador [EC] Peru [PE]",
-        "wfo-fv-72_provenance_ss": [
-            "wfo-0000632146-s-87-direct"
-        ],
-        "wfo-fv-182_provenance_ss": [
-            "wfo-0000632146-s-192-direct"
-        ],
-        "wfo-f-8_ss": [
-            "wfo-fv-407",
-            "wfo-fv-409",
-            "wfo-fv-453",
-            "wfo-fv-489",
-            "wfo-fv-601"
-        ],
-        "wfo-fv-407_provenance_ss": [
-            "wfo-0000632146-s-1109-direct"
-        ],
-        "wfo-f-8_t": "TDWG Botanical Area :  Chile Central Chile North Gal Juan Fern Peru",
-        "wfo-fv-409_provenance_ss": [
-            "wfo-0000632146-s-1111-direct"
-        ],
-        "wfo-fv-453_provenance_ss": [
-            "wfo-0000632146-s-1155-direct"
-        ],
-        "wfo-fv-489_provenance_ss": [
-            "wfo-0000632146-s-1191-direct"
-        ],
-        "wfo-fv-601_provenance_ss": [
-            "wfo-0000632146-s-1303-direct"
-        ],
-        "wfo-f-5_ss": [
-            "wfo-fv-1887"
-        ],
-        "wfo-fv-1887_provenance_ss": [
-            "wfo-0000632146-s-1554-direct",
-            "wfo-0000540650-s-1554-synonym"
-        ],
-        "wfo-f-5_t": "Life Form :  Annual",
-        "snippet_text_categories_ss": [
-            "link-out"
-        ],
-        "snippet_text_languages_ss": [
-            "zzz"
-        ],
-        "snippet_text_name_ids_ss": [
-            "wfo-0000632146"
-        ],
-        "snippet_text_ids_ss": [
-            "wfo-snippet-21500" FIXME
-        ],
-        "snippet_text_sources_ss": [
-            "wfo-ss-1803"
-        ],
-        "snippet_text_bodies_txt": [
-            "https:\/\/www.ncbi.nlm.nih.gov\/Taxonomy\/Browser\/wwwtax.cgi?id=3026891"
-        ]
-    }
-]
+
 </pre>
 </code>
 </p>
