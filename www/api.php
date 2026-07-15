@@ -327,6 +327,7 @@ function get_facets_for_wfo_ids($wfo_ids, $scored_via){
         f.`heritable` as heritable,
         fv.id as facet_value_id, 
         fv.`name` as facet_value_name,
+        fv.`code` as facet_value_code,
         s.id as source_id,
         s.`name` as source_name,
         '{$scored_via}'  as 'scored_via',
