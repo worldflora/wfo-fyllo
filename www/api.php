@@ -283,19 +283,35 @@ function add_snippets_for_wfo_id($doc, $wfo_ids){
         $ids_string = "'" . implode("','", $wfo_ids) . "'";
 
         $response = $mysqli->query("SELECT 
-            s.id, s.source_id, ss.name as source_name, s.body, ss.`snippet_category` as 'category', ss.`snippet_language` as 'language', meta_json, s.modified 
+                s.id,
+                s.source_id,
+                ss.name as source_name,
+                s.body,
+                ss.`snippet_category` as 'category',
+                ss.`snippet_language` as 'language',
+                s.meta_json,
+                s.modified 
             FROM snippets as s 
             JOIN sources as ss on s.source_id = ss.id 
             WHERE s.wfo_id in ({$ids_string})
             AND (ss.do_not_index is NULL || ss.do_not_index = 0)");
 
         while($row = $response->fetch_assoc()){
+            
             $doc->snippet_name_ids_ss[] = $wfo_ids[0]; // the WFO ID of the name the snippet is attached to
             $doc->snippet_categories_ss[] = $row['category']; // the category the snippet is
             $doc->snippet_languages_ss[] = $row['language']; // the language the snippet is in
             $doc->snippet_imported_ss[] = $row['modified']; // when it was modified = imported
             $doc->snippet_bodies_txt[] = $row['body']; // actual blocks of text
-            $doc->snippet_bodies_metadata_txt[] = $row['meta_json']; // json of the metadata
+
+            $meta = (object)array(
+                'row_metadata' => json_decode($row['meta_json']),
+                'source_id' => $row['source_id'],
+                'source_name' => $row['source_name'],
+                'snippet_id' => $row['id']
+            );
+
+            $doc->snippet_bodies_metadata_txt[] = json_encode($meta); // json of the metadata
             
             // content sources fields are shared with facets so we can filter on who 
             // has contributed to this taxon
