@@ -1,4 +1,5 @@
-const graphQlUri = "https://list.worldfloraonline.org/gql.php";
+// FIXME: THIS SHOULD BE IN A CONFIG FILE
+const graphQlUri = "https://list-test.rbge.info/gql.php";
 let listChanged = false; // a global handle for when to refresh the list
 
 
