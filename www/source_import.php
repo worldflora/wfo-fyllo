@@ -4,27 +4,11 @@ require_once('../include/FileStore.php');
 require_once('../include/ImporterFacets.php');
 require_once('../include/ImporterSnippets.php');
 
-$store = new FileStore($source['file_path']);
-
-if($store->file){
-    $git_oid = $store->file->oid;
-}else{
-    $git_oid = 'n/a';
-    echo "<div class=\"alert alert-danger\" role=\"alert\">Can't find the file in GitHub!</div>";
-}
-$local_oid = $source['oid'];
-
-if($git_oid != $local_oid) $alert = 'style="color: red"';
-else $alert = '';
-
-
-if($user && $store->file){
+if($user){
     $disabled = '';
 }else{
     $disabled = 'disabled';
 }
-
-// 
 
 if(@$_POST['import_button']){
     
@@ -77,17 +61,29 @@ if(@$_POST['import_button']){
         </tr>
         <tr>
             <th style="text-align: right;">GitHub OID: </th>
-            <td <?php echo $alert ?> ><?php echo $git_oid ?></td>
+            <td id="gitHubOid" >GitHub OID here</td>
         </tr>
         <tr>
             <th style="text-align: right;">Last import OID: </th>
-            <td <?php echo $alert ?> ><?php echo $local_oid ?></td>
+            <td><?php print_r($source['oid']) ?></td>
         </tr>
         <tr>
             <th style="text-align: right;">Last import date: </th>
             <td><?php echo $source['last_import'] ?></td>
         </tr>
     </table>
+    <script>
+          const gitHubOid = document.getElementById('gitHubOid');
+          gitHubOid.innerHTML = 'Loading ...';
+          fetch("/get_oid_async.php?file_path=<?php echo $source['file_path'] ?>" )
+              .then(response => response.text())
+              .then(text => {
+                gitHubOid.innerHTML = text;
+                    if(text != '<?php echo $source['oid'] ?>'){
+                        gitHubOid.style.color = 'red';
+                    }
+                });
+    </script>
 </div>
 <form method="POST" action="source.php">
     <input type="hidden" name="source_id" value="<?php echo $source_id ?>" />
