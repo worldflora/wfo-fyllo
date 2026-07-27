@@ -20,29 +20,21 @@ if($snippet_mode){
     $count_sql = "SELECT count(*) as n FROM wfo_scores as ws WHERE ws.source_id = $source_id;";
 }
 
-$start = microtime(true);
-$response = $mysqli->query($list_sql);
-$rows = $response->fetch_all(MYSQLI_ASSOC);
-$info_1 = $mysqli->info;
-$response->close();
+// fetch the pages if we have a filter
+if($filter_clause){
+    $response = $mysqli->query($list_sql);
+    $rows = $response->fetch_all(MYSQLI_ASSOC);
+    $info_1 = $mysqli->info;
+    $response->close();
+}else{
+    $rows = array();
+}
 
-
-echo '<pre>';
-echo "Main query time: ";
-echo microtime(true) - $start;
-echo '</pre>';
-
-$count_sql = "SELECT count(*) as n FROM wfo_scores as ws WHERE ws.source_id = $source_id;";
-$start = microtime(true);
+// do the count
 $response = $mysqli->query($count_sql);
 $row = $response->fetch_assoc();
 $total_rows = number_format($row['n']);
 $response->close();
-
-echo '<pre>';
-echo "Count query time: ";
-echo microtime(true) - $start;
-echo '</pre>';
 
 
 ?>
@@ -56,7 +48,7 @@ const filter_on_load = '<?php echo $filter ?>';
         <input autofocus type="txt" class="form-control" id="filter" name="filter" value="<?php echo $filter ?>"
             onkeyup="if(this.value != filter_on_load) this.form.submit();"
             onfocus="this.setSelectionRange(this.value.length, this.value.length);"
-            placeholder="Type the first few letters of the name to filter the list." />
+            placeholder="Type the first few letters of the name to explore the list." />
     </div>
 </form>
 

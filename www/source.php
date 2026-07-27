@@ -72,7 +72,7 @@
         echo "<h1>{$source['name']}</h1>";
         $parser = new Parsedown();
         $source_html = $parser->text($source['description']);
-        echo "<div class=\"lead\">{$source_html}</div>";
+        echo "<div class=\"lead\" style=\"max-height: 20em; overflow: auto; margin: 1em;\" >{$source_html}</div>";
     }else{
         if($facet_value_id == 'snippet'){
             echo "<h1>Creating a snippet data source</h1>";
