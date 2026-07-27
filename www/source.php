@@ -125,7 +125,7 @@
 
     <!-- LIST DISPLAY -->
     <div class="tab-pane fade <?php echo @$_REQUEST['tab'] == 'list' ? 'show active' : '' ?>" id="list" role="tabpanel" aria-labelledby="list-tab">
-        <?php require_once('source_list.php'); ?>
+        <?php //require_once('source_list.php'); ?>
     </div>
 <?php } // if source ?>
 </div>
