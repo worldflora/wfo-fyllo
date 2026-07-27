@@ -20,15 +20,30 @@ if($snippet_mode){
     $count_sql = "SELECT count(*) as n FROM wfo_scores as ws WHERE ws.source_id = $source_id;";
 }
 
+$start = microtime(true);
 $response = $mysqli->query($list_sql);
 $rows = $response->fetch_all(MYSQLI_ASSOC);
+$info_1 = $mysqli->info;
 $response->close();
 
+
+echo '<pre>';
+echo "Main query time: ";
+echo microtime(true) - $start;
+echo '</pre>';
+
 $count_sql = "SELECT count(*) as n FROM wfo_scores as ws WHERE ws.source_id = $source_id;";
+$start = microtime(true);
 $response = $mysqli->query($count_sql);
 $row = $response->fetch_assoc();
 $total_rows = number_format($row['n']);
 $response->close();
+
+echo '<pre>';
+echo "Count query time: ";
+echo microtime(true) - $start;
+echo '</pre>';
+
 
 ?>
 <script>
