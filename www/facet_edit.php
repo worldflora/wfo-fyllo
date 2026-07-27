@@ -73,7 +73,7 @@
     </div>
 
     <div class="mb-3">
-        <label for="description" class="form-label">Facet description</label>
+        <label for="description" class="form-label">Facet description (<a href="https://en.wikipedia.org/wiki/Markdown" target="manual">MarkDown</a>)</label>
         <textarea class="form-control" id="description" name="description"
             aria-describedby="description_help"><?php echo $description ?></textarea>
         <div id="description_help" class="form-text">A concise description of the facet.</div>

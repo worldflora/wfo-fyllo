@@ -1,6 +1,7 @@
 <?php
 require_once('../include/language_codes.php');
 require_once('header.php');
+require_once('../include/Parsedown.php');
 
 // build a list of the categories from the enumeration in the db
 // we need this later
@@ -136,6 +137,9 @@ if(!@$_GET['category'] && !@$_GET['language']){
 
         $result = $mysqli->query($sql);
 
+                
+    
+        $parser = new Parsedown();
         while($row = $result->fetch_assoc()){
 
             echo "<tr>";
@@ -151,7 +155,9 @@ if(!@$_GET['category'] && !@$_GET['language']){
             echo "<td>{$lang_label}</td>";
             
             echo "<td>{$row['name']}</td>";
-            echo "<td>{$row['description']}</td>";
+
+            $description = $parser->text($row['description']);
+            echo "<td>{$description}</td>";
             echo "<tr/>";
         }
 

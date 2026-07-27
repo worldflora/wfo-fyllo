@@ -1,5 +1,6 @@
 <?php
     require_once('header.php');
+    require_once('../include/Parsedown.php');
 
     $facet_id = (int)$_GET['facet_id'];
     
@@ -21,7 +22,9 @@
         → {$facet['name']}</p>";
         
     echo "<h1>{$facet['name']}</h1>";
-    echo "<p class=\"lead\">{$facet['description']}";
+    $parser = new Parsedown();
+    $description_html = $parser->text($facet['description']);
+    echo "<p class=\"lead\">{$description_html}";
 
     if($facet['heritable']){
         echo "<strong> [Heritable]</strong>";
@@ -35,6 +38,7 @@
     $facet_values = $response->fetch_all(MYSQLI_ASSOC);
     $response->close(); 
 
+    $parser = new Parsedown();
     foreach($facet_values as $fv){
         
         echo '<li class="list-group-item" >';
@@ -61,7 +65,10 @@
  
         echo ".</p>"; // edn sources;
 
-        echo "<p>{$fv['description']}</p>";
+        
+        $description = $parser->text($fv['description']);
+
+        echo "<p>{$description}</p>";
         echo '</div>'; // end of col
 
         // if they are god then show the edit buttons
