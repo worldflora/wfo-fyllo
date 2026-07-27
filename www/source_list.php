@@ -57,7 +57,7 @@ if($rows){
         $wfo_id = $row['wfo_id'];
         echo "<li class=\"list-group-item\" id=\"$wfo_id\" >Loading $wfo_id ...</li>";
         echo "<script>\n";
-        echo "replaceNameListItem('$wfo_id');";
+        //echo "replaceNameListItem('$wfo_id');";
         echo "\n</script>";
     }
     
