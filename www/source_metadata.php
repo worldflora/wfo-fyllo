@@ -140,7 +140,7 @@ if($message){
     <div class="mb-3">
         <label for="description" class="form-label">Source description</label>
         <textarea class="form-control" id="description" name="description"
-            aria-describedby="description_help" <?php echo $disabled  ?> ><?php echo $description ?></textarea>
+            aria-describedby="description_help" <?php echo $disabled  ?> rows="12" ><?php echo $description ?></textarea>
         <div id="description_help" class="form-text">A concise description of the source.</div>
     </div>
 

@@ -1,6 +1,7 @@
 <?php
     require_once('../include/language_codes.php');
     require_once('header.php');
+    require_once('../include/Parsedown.php');
 
     $source_id = (int)@$_REQUEST['source_id']; // will be null when creating
     $facet_value_id = @$_REQUEST['facet_value_id']; // may be null when we are editing 
@@ -69,7 +70,9 @@
   
     if($source){
         echo "<h1>{$source['name']}</h1>";
-        echo "<p class=\"lead\">{$source['description']}</p>";
+        $parser = new Parsedown();
+        $source_html = $parser->text($source['description']);
+        echo "<div class=\"lead\">{$source_html}</div>";
     }else{
         if($facet_value_id == 'snippet'){
             echo "<h1>Creating a snippet data source</h1>";
