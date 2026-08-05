@@ -3,11 +3,11 @@
 filename=$(ls -tp ../data/db_dumps | grep -v /$ | head -1)
 filepath="../data/db_dumps/${filename}"
 echo "$filepath"
-mysql -e "DROP DATABASE IF EXISTS wfo_facets"
-mysql -e "CREATE DATABASE wfo_facets"
+mysql -e "DROP DATABASE IF EXISTS fyllo"
+mysql -e "CREATE DATABASE fyllo"
 start=$(date +"%H:%M:%S")
 echo "This may take a while. Starting at $start"
-gunzip < $filepath | mysql wfo_facets
+gunzip < $filepath | mysql fyllo
 end=$(date +"%H:%M:%S")
 echo "Finished at $end"
 echo "All done!"

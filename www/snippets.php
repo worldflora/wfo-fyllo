@@ -146,7 +146,6 @@ if(!@$_GET['category'] && !@$_GET['language']){
 
             echo "<th scope=\"row\"><a href=\"source.php?source_id={$row['id']}\">{$row['id']}</a></th>";
 
-
             $cat_label = ucwords($row['snippet_category']);
             echo "<td>{$cat_label}</td>";
 

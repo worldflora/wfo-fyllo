@@ -16,6 +16,8 @@ if(@$_POST['import_button']){
     $local_file_dir = "../data/session_data/user_{$user['id']}";
     @mkdir($local_file_dir, 0777,true);
 
+    $store = new FileStore($source['file_path']);
+    
     $local_file_path = $store->downloadFile($local_file_dir);
 
     if($local_file_path){
