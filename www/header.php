@@ -1,6 +1,7 @@
 <!doctype html>
 <?php
     require_once('../config.php');
+    require_once('../include/IndexerSwitch.php');
 
     // create a user object for use all over
     $user = @$_SESSION['user'] ? $_SESSION['user'] : null;
@@ -56,7 +57,6 @@
                             href="taxa.php">Taxa</a>
                     </li>
 
-
    
                     <?php 
                         if($user){
@@ -71,8 +71,32 @@
                     </li>
                     <?php } ?>
                 </ul>
-                <form class="d-flex">
+
+                <?php if($user){ ?>
+                <form class="d-flex" method="GET" action="indexer_toggle.php"> 
+                    <span style="color: white; margin-right: 0.5em; ">
+                            <?php
+                            
+                                $till = IndexerSwitch::onUntil();
+                                if($till){
+                                    echo "Indexer off in: $till";
+                                }else{
+                                    echo "Indexer if off";
+                                }
+                                
+                            ?>
+
+                    </span>
+                    <div class="form-check form-switch form-check-reverse" style="margin-right: 2em; ">
+                        <input onchange="this.form.submit()" class="form-check-input" type="checkbox" role="switch" id="indexSwitch" <?php echo $till ? 'checked' : ''; ?>>
+                    </div>
+                </form> 
+                <?php } ?>
+
+                <form class="d-flex">                    
+
                     <?php 
+
                         if($user){
                             echo '<a class="btn btn-outline-success" href="logout.php" role="button" >Log out: '. $user['username'] .'</a>';
                         }else{

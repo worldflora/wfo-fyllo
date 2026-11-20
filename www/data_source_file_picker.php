@@ -15,6 +15,8 @@ $file_icon_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
 if($store->entries){
     // we are a directory and need to display content
     echo '<div class="list-group list-group-flush" style="max-height: 30em; overflow: auto;">';
+    $display_path = preg_replace('/^data/', '',$store->getPath());
+    echo "<div class=\"list-group-item list-group-item-secondary\">{$display_path}</div>";
     foreach ($store->entries as $entry) {
         if($entry->type == 'tree'){
             // flagged with a class so we can add an event listener to it
@@ -27,6 +29,7 @@ if($store->entries){
         }
     }
     echo "</div>";
+    $_SESSION['fyllo_last_github_folder'] = $store->getPath();
 }else{
     // we are a file and need to display that
     print_r($store->file);

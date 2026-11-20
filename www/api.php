@@ -4,6 +4,7 @@ require_once('../config.php');
 require_once('../include/BearerToken.php');
 require_once('../include/FileStore.php');
 require_once('../include/NameCache.php');
+require_once('../include/IndexerSwitch.php');
 
 set_time_limit(60 * 2); // we don't want these scripts to time out but we don't want them to block either.
 
@@ -15,7 +16,7 @@ $post_body = file_get_contents('php://input');
 if($post_body || $_GET){
 
     // we are serving data so check they have a bearer token that matches
-    // the correct token is stored in the config secrets witht he github token and db credentials.
+    // the correct token is stored in the config secrets with the github token and db credentials.
     if(!BearerToken::authorized()){
         http_response_code(401);
         echo "Unauthorized: You must provide a bearer token!";
@@ -25,11 +26,21 @@ if($post_body || $_GET){
     if($post_body){
         return_taxon_values(json_decode($post_body));
     }else{
-        if(isset($_GET['offset']) && !isset($_GET['import'])){
+        if(isset($_GET['index_taxa_on'])){
 
-            // LAST MODIFIED NAMES
-            $offset = (int)$_GET['offset']; // maybe zero
-            return_last_modified((double)$offset);
+            // we just return if the indexer is on or not
+            $out = (object)array();
+            $on_till = IndexerSwitch::onUntil();
+            if($on_till){
+                $out->on = true;
+                $out->offAt = $on_till;
+            }else{
+                $out->on = false;
+                $out->offAt = null;
+            }
+
+            header('Content-Type: application/json');
+            echo json_encode($out);
 
         }elseif(isset($_GET['metadata'])){
 
@@ -221,7 +232,6 @@ function get_taxon_values($graph){
     $doc->facet_names_ss = array(); 
     $doc->facet_values_ss = array(); 
     
-
     // we store the facet metadata in a single object
     $doc->facets_metadata_t = json_encode($facets);
 
@@ -433,7 +443,7 @@ function return_sources_metadata($since){
             $solr_docs[] = (object)array(
                 'id'=> 'ds-' . $s['id'],
                 'kind_s' => 'wfo-snippet-source',
-                'last_modified_d' => (double)$s['last_modified_d'],
+                'last_modified_d' => (float)$s['last_modified_d'],
                 'fyllo_last_indexed_dt' => $just_now, // useful to have the last mod as a date uniform across all solr docs.
                 'json_t' => json_encode((object)$s)
             );
@@ -441,7 +451,7 @@ function return_sources_metadata($since){
             $solr_docs[] = (object)array(
                 'id'=> 'ds-' .  $s['id'],
                 'kind_s' => 'wfo-facet-source',
-                'last_modified_d' => (double)$s['last_modified_d'],
+                'last_modified_d' => (float)$s['last_modified_d'],
                 'fyllo_last_indexed_dt' => $just_now, // useful to have the last mod as a date uniform across all solr docs.
                 'json_t' => json_encode((object)$s)
             );
@@ -494,7 +504,7 @@ function return_facet_metadata($since){
             // we tag with the last mod date in the facets and facet_values
             // not the mod time stamp includes the primary key as the double
             // part of the double because imports may be faster than a second
-            $last_modified = (double)$facet['modified']; 
+            $last_modified = (float)$facet['modified']; 
             
             // add the facet values for this facet
             $response = $mysqli->query("SELECT 
@@ -513,7 +523,7 @@ function return_facet_metadata($since){
             $facet['facet_values'] = array();
             foreach ($facet_values as $fv) {
                $facet['facet_values'][$fv['id']] = $fv;
-               if((double)$fv['modified'] > $last_modified) $last_modified = (double)$fv['modified'];
+               if((float)$fv['modified'] > $last_modified) $last_modified = (float)$fv['modified'];
             }
             $response->close();
             

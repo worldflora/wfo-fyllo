@@ -222,8 +222,11 @@ class FileStore{
 
 
 
-    }
+    } // downloadFile
 
+    public function getPath(){
+        return $this->path;
+    }
 
 }
 

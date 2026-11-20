@@ -67,7 +67,6 @@ curl_setopt($curl, CURLOPT_FILE, $out); // write it to the file
 
 // trigger the download
 $result = curl_exec($curl);
-curl_close($curl);
 fclose($out);
 
 // double check we got it - and set flag to stop import if we can't uncompress it

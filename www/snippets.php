@@ -89,6 +89,16 @@ if($user){
 
 ?>
 </select>
+&nbsp;
+Sort by:
+<select name="sort" onchange="this.form.submit()">
+    <option value="name" <?php echo @$_GET['sort'] == 'name'  ? 'selected' : '' ?> >Name</value>
+    <option value="id" <?php echo @$_GET['sort'] == 'id'  ? 'selected' : '' ?> >ID</value>
+    <option value="modified DESC" <?php echo @$_GET['sort'] == 'modified DESC'  ? 'selected' : '' ?> >Modified - Descending</value>
+    <option value="modified ASC" <?php echo @$_GET['sort'] == 'modified ASC'  ? 'selected' : '' ?> >Modified - Ascending</value>
+    <option value="last_import DESC" <?php echo @$_GET['sort'] == 'last_import DESC'  ? 'selected' : '' ?> >Last imported - Descending</value>
+    <option value="last_import ASC" <?php echo @$_GET['sort'] == 'last_import ASC'  ? 'selected' : '' ?> >Last imported - Ascending</value>
+</select>
 
 </form>
 
@@ -130,7 +140,14 @@ if(!@$_GET['category'] && !@$_GET['language']){
         // get the languages as an alphabetical list to sort on
         $languages_string = "'" . implode("','", array_keys($language_codes_alpha3)) . "'";
 
-        $sql .= " ORDER BY
+        $sql .= " ORDER BY ";
+
+        if(@$_GET['sort']){
+            $sql .= " {$_GET['sort']},"; 
+        }
+
+        // always then order by the category and language
+        $sql .= "
                 FIELD(`snippet_category`, {$categories_string}),
                 FIELD(`snippet_language`, {$languages_string})    
             ;";

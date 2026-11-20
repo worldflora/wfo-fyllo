@@ -1,0 +1,139 @@
+stdClass Object
+(
+    [kind] => taxon-values
+    [docs] => Array
+        (
+            [0] => stdClass Object
+                (
+                    [taxon] => wfo-0000398690
+                    [classification] => 9999-01
+                    [content_source_ids_is] => Array
+                        (
+                            [0] => 423
+                            [1] => 586
+                            [2] => 439
+                            [3] => 598
+                            [4] => 443
+                            [5] => 601
+                            [6] => 450
+                            [7] => 610
+                            [8] => 519
+                            [9] => 684
+                            [10] => 522
+                            [11] => 687
+                            [12] => 567
+                            [13] => 921
+                            [14] => 741
+                            [15] => 87
+                            [16] => 107
+                            [17] => 118
+                            [18] => 137
+                            [19] => 296
+                            [20] => 300
+                            [21] => 383
+                            [22] => 37
+                            [23] => 38
+                            [24] => 16
+                            [25] => 27
+                            [26] => 25
+                            [27] => 26
+                        )
+
+                    [content_source_names_ss] => Array
+                        (
+                            [0] => Brazil [BR] - WCVP - TDWG Level 3 based.
+                            [1] => Brazil [BR] from parsed GBIF occurrence data.
+                            [2] => Colombia [CO] - WCVP - TDWG Level 3 based.
+                            [3] => Colombia [CO] from parsed GBIF occurrence data.
+                            [4] => Costa Rica [CR] - WCVP - TDWG Level 3 based.
+                            [5] => Costa Rica [CR] from parsed GBIF occurrence data.
+                            [6] => Ecuador [EC] - WCVP - TDWG Level 3 based.
+                            [7] => Ecuador [EC] from parsed GBIF occurrence data.
+                            [8] => Panama [PA] - WCVP - TDWG Level 3 based.
+                            [9] => Panama [PA] from parsed GBIF occurrence data.
+                            [10] => Peru [PE] - WCVP - TDWG Level 3 based.
+                            [11] => Peru [PE] from parsed GBIF occurrence data.
+                            [12] => Venezuela (Bolivarian Republic of) [VE] - WCVP - TDWG Level 3 based.
+                            [13] => Species+ CITES Appendix II data
+                            [14] => IUCN Red List LC
+                            [15] => TDWG Level 3: BZN - Brazil North from WCVP
+                            [16] => TDWG Level 3: CLM - Colombia from WCVP
+                            [17] => TDWG Level 3: COS - Costa Rica from WCVP
+                            [18] => TDWG Level 3: ECU - Ecuador from WCVP
+                            [19] => TDWG Level 3: PAN - Panama from WCVP
+                            [20] => TDWG Level 3: PER - Peru from WCVP
+                            [21] => TDWG Level 3: VEN - Venezuela from WCVP
+                            [22] => Tropical regions from parsed GBIF global plant occurrence data 1.0 Plus
+                            [23] => Americas from parsed GBIF global plant occurrence data 1.0 Plus
+                            [24] => WCVP Lifeform Description: Epiphyte
+                            [25] => WCVP Lifeform Description: Succulent
+                            [26] => WCVP Lifeform Description: Shrub
+                            [27] => WCVP Lifeform Description: Subshrub
+                        )
+
+                    [facet_names_ss] => Array
+                        (
+                            [0] => Countries (ISO) ~ 1
+                            [1] => CITES Status ~ 2
+                            [2] => IUCN Threat Status ~ 7
+                            [3] => TDWG Level 3 - Botanical Area ~ 5
+                            [4] => Global Zone ~ 9
+                            [5] => Habit (growth form) ~ 8
+                        )
+
+                    [facet_values_ss] => Array
+                        (
+                            [0] => 1-32 ~ Brazil [BR]
+                            [1] => 1-49 ~ Colombia [CO]
+                            [2] => 1-54 ~ Costa Rica [CR]
+                            [3] => 1-65 ~ Ecuador [EC]
+                            [4] => 1-172 ~ Panama [PA]
+                            [5] => 1-175 ~ Peru [PE]
+                            [6] => 1-241 ~ Venezuela (Bolivarian Republic of) [VE]
+                            [7] => 2-257 ~ Appendix II
+                            [8] => 7-268 ~ Least Concern
+                            [9] => 5-325 ~ Brazil North
+                            [10] => 5-345 ~ Colombia
+                            [11] => 5-356 ~ Costa Rica
+                            [12] => 5-375 ~ Ecuador
+                            [13] => 5-534 ~ Panama
+                            [14] => 5-538 ~ Peru
+                            [15] => 5-621 ~ Venezuela
+                            [16] => 9-1883 ~ Tropical
+                            [17] => 9-1890 ~ Western Segment (Americas)
+                            [18] => 8-1896 ~ Epiphyte
+                            [19] => 8-1907 ~ Succulent
+                            [20] => 8-1905 ~ Shrub
+                            [21] => 8-1906 ~ Subshrub
+                        )
+
+                    [facets_metadata_t] => [{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"32","facet_value_name":"Brazil [BR]","facet_value_code":"BR","source_id":"423","source_name":"Brazil [BR] - WCVP - TDWG Level 3 based.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","wcvp_genus":"Pseudorhipsalis","iso_country":"BR","tdwg_level3":"BZN","wcvp_family":"Cactaceae","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"32","facet_value_name":"Brazil [BR]","facet_value_code":"BR","source_id":"586","source_name":"Brazil [BR] from parsed GBIF occurrence data.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","wcvp_name":"Pseudorhipsalis amazonica (K.Schum.) Ralf Bauer","wcvp_plant_id":"2415394","specimen_count":"3","example_specimen_1":"https:\/\/www.gbif.org\/occurrence\/1929878707","example_specimen_2":"https:\/\/www.gbif.org\/occurrence\/1930441429","example_specimen_3":"https:\/\/www.gbif.org\/occurrence\/1042602290","example_specimen_4":"","example_specimen_5":"","example_specimen_6":"","example_specimen_7":"","example_specimen_8":"","example_specimen_9":"","example_specimen_10":""}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"49","facet_value_name":"Colombia [CO]","facet_value_code":"CO","source_id":"439","source_name":"Colombia [CO] - WCVP - TDWG Level 3 based.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","wcvp_genus":"Pseudorhipsalis","iso_country":"CO","tdwg_level3":"CLM","wcvp_family":"Cactaceae","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"49","facet_value_name":"Colombia [CO]","facet_value_code":"CO","source_id":"598","source_name":"Colombia [CO] from parsed GBIF occurrence data.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","wcvp_name":"Pseudorhipsalis amazonica (K.Schum.) Ralf Bauer","wcvp_plant_id":"2415394","specimen_count":"50","example_specimen_1":"https:\/\/www.gbif.org\/occurrence\/931008236","example_specimen_2":"https:\/\/www.gbif.org\/occurrence\/1898893187","example_specimen_3":"https:\/\/www.gbif.org\/occurrence\/931003908","example_specimen_4":"https:\/\/www.gbif.org\/occurrence\/931003722","example_specimen_5":"https:\/\/www.gbif.org\/occurrence\/930993027","example_specimen_6":"https:\/\/www.gbif.org\/occurrence\/931009992","example_specimen_7":"https:\/\/www.gbif.org\/occurrence\/1427429924","example_specimen_8":"https:\/\/www.gbif.org\/occurrence\/3865497911","example_specimen_9":"https:\/\/www.gbif.org\/occurrence\/931007202","example_specimen_10":"https:\/\/www.gbif.org\/occurrence\/4026671947"}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"54","facet_value_name":"Costa Rica [CR]","facet_value_code":"CR","source_id":"443","source_name":"Costa Rica [CR] - WCVP - TDWG Level 3 based.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","wcvp_genus":"Pseudorhipsalis","iso_country":"CR","tdwg_level3":"COS","wcvp_family":"Cactaceae","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"54","facet_value_name":"Costa Rica [CR]","facet_value_code":"CR","source_id":"601","source_name":"Costa Rica [CR] from parsed GBIF occurrence data.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","wcvp_name":"Pseudorhipsalis amazonica (K.Schum.) Ralf Bauer","wcvp_plant_id":"2415394","specimen_count":"18","example_specimen_1":"https:\/\/www.gbif.org\/occurrence\/1253781866","example_specimen_2":"https:\/\/www.gbif.org\/occurrence\/1253781882","example_specimen_3":"https:\/\/www.gbif.org\/occurrence\/1253781905","example_specimen_4":"https:\/\/www.gbif.org\/occurrence\/1253863826","example_specimen_5":"https:\/\/www.gbif.org\/occurrence\/1253863864","example_specimen_6":"https:\/\/www.gbif.org\/occurrence\/1253863848","example_specimen_7":"https:\/\/www.gbif.org\/occurrence\/1253781895","example_specimen_8":"https:\/\/www.gbif.org\/occurrence\/1258596721","example_specimen_9":"https:\/\/www.gbif.org\/occurrence\/4031479287","example_specimen_10":"https:\/\/www.gbif.org\/occurrence\/4062057857"}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"65","facet_value_name":"Ecuador [EC]","facet_value_code":"EC","source_id":"450","source_name":"Ecuador [EC] - WCVP - TDWG Level 3 based.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","wcvp_genus":"Pseudorhipsalis","iso_country":"EC","tdwg_level3":"ECU","wcvp_family":"Cactaceae","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"65","facet_value_name":"Ecuador [EC]","facet_value_code":"EC","source_id":"610","source_name":"Ecuador [EC] from parsed GBIF occurrence data.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","wcvp_name":"Pseudorhipsalis amazonica (K.Schum.) Ralf Bauer","wcvp_plant_id":"2415394","specimen_count":"68","example_specimen_1":"https:\/\/www.gbif.org\/occurrence\/1260330538","example_specimen_2":"https:\/\/www.gbif.org\/occurrence\/4031991125","example_specimen_3":"https:\/\/www.gbif.org\/occurrence\/4031364988","example_specimen_4":"https:\/\/www.gbif.org\/occurrence\/4031873124","example_specimen_5":"https:\/\/www.gbif.org\/occurrence\/4031511665","example_specimen_6":"https:\/\/www.gbif.org\/occurrence\/47759059","example_specimen_7":"https:\/\/www.gbif.org\/occurrence\/1260312685","example_specimen_8":"https:\/\/www.gbif.org\/occurrence\/47759096","example_specimen_9":"https:\/\/www.gbif.org\/occurrence\/47759107","example_specimen_10":"https:\/\/www.gbif.org\/occurrence\/1259958277"}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"172","facet_value_name":"Panama [PA]","facet_value_code":"PA","source_id":"519","source_name":"Panama [PA] - WCVP - TDWG Level 3 based.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","wcvp_genus":"Pseudorhipsalis","iso_country":"PA","tdwg_level3":"PAN","wcvp_family":"Cactaceae","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"172","facet_value_name":"Panama [PA]","facet_value_code":"PA","source_id":"684","source_name":"Panama [PA] from parsed GBIF occurrence data.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","wcvp_name":"Pseudorhipsalis amazonica (K.Schum.) Ralf Bauer","wcvp_plant_id":"2415394","specimen_count":"24","example_specimen_1":"https:\/\/www.gbif.org\/occurrence\/1258396628","example_specimen_2":"https:\/\/www.gbif.org\/occurrence\/3308641698","example_specimen_3":"https:\/\/www.gbif.org\/occurrence\/3308458248","example_specimen_4":"https:\/\/www.gbif.org\/occurrence\/3308709058","example_specimen_5":"https:\/\/www.gbif.org\/occurrence\/3308359832","example_specimen_6":"https:\/\/www.gbif.org\/occurrence\/3307784877","example_specimen_7":"https:\/\/www.gbif.org\/occurrence\/1260317485","example_specimen_8":"https:\/\/www.gbif.org\/occurrence\/1258396606","example_specimen_9":"https:\/\/www.gbif.org\/occurrence\/1260313516","example_specimen_10":"https:\/\/www.gbif.org\/occurrence\/1260316728"}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"175","facet_value_name":"Peru [PE]","facet_value_code":"PE","source_id":"522","source_name":"Peru [PE] - WCVP - TDWG Level 3 based.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","wcvp_genus":"Pseudorhipsalis","iso_country":"PE","tdwg_level3":"PER","wcvp_family":"Cactaceae","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"175","facet_value_name":"Peru [PE]","facet_value_code":"PE","source_id":"687","source_name":"Peru [PE] from parsed GBIF occurrence data.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","wcvp_name":"Pseudorhipsalis amazonica (K.Schum.) Ralf Bauer","wcvp_plant_id":"2415394","specimen_count":"56","example_specimen_1":"https:\/\/www.gbif.org\/occurrence\/1261491857","example_specimen_2":"https:\/\/www.gbif.org\/occurrence\/1261872870","example_specimen_3":"https:\/\/www.gbif.org\/occurrence\/2807583292","example_specimen_4":"https:\/\/www.gbif.org\/occurrence\/1260316115","example_specimen_5":"https:\/\/www.gbif.org\/occurrence\/2807352909","example_specimen_6":"https:\/\/www.gbif.org\/occurrence\/4031682020","example_specimen_7":"https:\/\/www.gbif.org\/occurrence\/1228506748","example_specimen_8":"https:\/\/www.gbif.org\/occurrence\/1260491849","example_specimen_9":"https:\/\/www.gbif.org\/occurrence\/1259499838","example_specimen_10":"https:\/\/www.gbif.org\/occurrence\/4061667941"}},{"facet_id":"1","facet_name":"Countries (ISO)","heritable":"0","facet_value_id":"241","facet_value_name":"Venezuela (Bolivarian Republic of) [VE]","facet_value_code":"VE","source_id":"567","source_name":"Venezuela (Bolivarian Republic of) [VE] - WCVP - TDWG Level 3 based.","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","wcvp_genus":"Pseudorhipsalis","iso_country":"VE","tdwg_level3":"VEN","wcvp_family":"Cactaceae","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"2","facet_name":"CITES Status","heritable":"1","facet_value_id":"257","facet_value_name":"Appendix II","facet_value_code":"CITES_II","source_id":"921","source_name":"Species+ CITES Appendix II data","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"Id":"94052","wfoid":"wfo-0000398690","speciesplus_url":"https:\/\/speciesplus.net\/species#\/taxon_concepts\/94052\/legal"}},{"facet_id":"7","facet_name":"IUCN Threat Status","heritable":"1","facet_value_id":"268","facet_value_name":"Least Concern","facet_value_code":"LC","source_id":"741","source_name":"IUCN Red List LC","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"url":"https:\/\/doi.org\/10.2305\/iucn.uk.2017-3.rlts.t152088a121578729.en","scopes":"Global","wfo_id":"wfo-0000398690","TaxonID":"152088","citation":"(2009). Pseudorhipsalis amazonica: Hammel, B. &amp; Loaiza, C. *IUCN Red List of Threatened Species*, https:\/\/doi.org\/10.2305\/iucn.uk.2017-3.rlts.t152088a121578729.en","authority":"(K.Schum.) Ralf Bauer ","className":"MAGNOLIOPSIDA","genusName":"Pseudorhipsalis","infraName":"","infraType":"","orderName":"CARYOPHYLLALES","familyName":"CACTACEAE","phylumName":"TRACHEOPHYTA","kingdomName":"PLANTAE","speciesName":"amazonica","AssessmentID":"121578729","infraAuthority":"","scientificName":"Pseudorhipsalis amazonica","criteriaVersion":"3.1","populationTrend":"Stable","redlistCategory":"Least Concern","redlistCriteria":""}},{"facet_id":"5","facet_name":"TDWG Level 3 - Botanical Area","heritable":"0","facet_value_id":"325","facet_value_name":"Brazil North","facet_value_code":"BZN","source_id":"87","source_name":"TDWG Level 3: BZN - Brazil North from WCVP","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","locality":"Brazil North","wcvp_genus":"Pseudorhipsalis","tdwg_level3":"BZN","wcvp_family":"Cactaceae","wcvp_geo_note":"C. & S. Trop. America","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"5","facet_name":"TDWG Level 3 - Botanical Area","heritable":"0","facet_value_id":"345","facet_value_name":"Colombia","facet_value_code":"CLM","source_id":"107","source_name":"TDWG Level 3: CLM - Colombia from WCVP","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","locality":"Colombia","wcvp_genus":"Pseudorhipsalis","tdwg_level3":"CLM","wcvp_family":"Cactaceae","wcvp_geo_note":"C. & S. Trop. America","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"5","facet_name":"TDWG Level 3 - Botanical Area","heritable":"0","facet_value_id":"356","facet_value_name":"Costa Rica","facet_value_code":"COS","source_id":"118","source_name":"TDWG Level 3: COS - Costa Rica from WCVP","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","locality":"Costa Rica","wcvp_genus":"Pseudorhipsalis","tdwg_level3":"COS","wcvp_family":"Cactaceae","wcvp_geo_note":"C. & S. Trop. America","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"5","facet_name":"TDWG Level 3 - Botanical Area","heritable":"0","facet_value_id":"375","facet_value_name":"Ecuador","facet_value_code":"ECU","source_id":"137","source_name":"TDWG Level 3: ECU - Ecuador from WCVP","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","locality":"Ecuador","wcvp_genus":"Pseudorhipsalis","tdwg_level3":"ECU","wcvp_family":"Cactaceae","wcvp_geo_note":"C. & S. Trop. America","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"5","facet_name":"TDWG Level 3 - Botanical Area","heritable":"0","facet_value_id":"534","facet_value_name":"Panama","facet_value_code":"PAN","source_id":"296","source_name":"TDWG Level 3: PAN - Panama from WCVP","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","locality":"Panam\u00e1","wcvp_genus":"Pseudorhipsalis","tdwg_level3":"PAN","wcvp_family":"Cactaceae","wcvp_geo_note":"C. & S. Trop. America","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"5","facet_name":"TDWG Level 3 - Botanical Area","heritable":"0","facet_value_id":"538","facet_value_name":"Peru","facet_value_code":"PER","source_id":"300","source_name":"TDWG Level 3: PER - Peru from WCVP","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","locality":"Peru","wcvp_genus":"Pseudorhipsalis","tdwg_level3":"PER","wcvp_family":"Cactaceae","wcvp_geo_note":"C. & S. Trop. America","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"5","facet_name":"TDWG Level 3 - Botanical Area","heritable":"0","facet_value_id":"621","facet_value_name":"Venezuela","facet_value_code":"VEN","source_id":"383","source_name":"TDWG Level 3: VEN - Venezuela from WCVP","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","locality":"Venezuela","wcvp_genus":"Pseudorhipsalis","tdwg_level3":"VEN","wcvp_family":"Cactaceae","wcvp_geo_note":"C. & S. Trop. America","wcvp_taxon_name":"Pseudorhipsalis amazonica"}},{"facet_id":"9","facet_name":"Global Zone","heritable":"0","facet_value_id":"1883","facet_value_name":"Tropical","facet_value_code":null,"source_id":"37","source_name":"Tropical regions from parsed GBIF global plant occurrence data 1.0 Plus","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","wcvp_name":"Pseudorhipsalis amazonica (K.Schum.) Ralf Bauer","wcvp_plant_id":"2415394","specimen_count":"219","example_specimen_1":"https:\/\/www.gbif.org\/occurrence\/1260330538","example_specimen_2":"https:\/\/www.gbif.org\/occurrence\/931008236","example_specimen_3":"https:\/\/www.gbif.org\/occurrence\/1898893187","example_specimen_4":"https:\/\/www.gbif.org\/occurrence\/931003908","example_specimen_5":"https:\/\/www.gbif.org\/occurrence\/931003722","example_specimen_6":"https:\/\/www.gbif.org\/occurrence\/1258396628","example_specimen_7":"https:\/\/www.gbif.org\/occurrence\/1253781866","example_specimen_8":"https:\/\/www.gbif.org\/occurrence\/1253781882","example_specimen_9":"https:\/\/www.gbif.org\/occurrence\/1253781905","example_specimen_10":"https:\/\/www.gbif.org\/occurrence\/1253863826"}},{"facet_id":"9","facet_name":"Global Zone","heritable":"0","facet_value_id":"1890","facet_value_name":"Western Segment (Americas)","facet_value_code":"","source_id":"38","source_name":"Americas from parsed GBIF global plant occurrence data 1.0 Plus","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","wcvp_name":"Pseudorhipsalis amazonica (K.Schum.) Ralf Bauer","wcvp_plant_id":"2415394","specimen_count":"219","example_specimen_1":"https:\/\/www.gbif.org\/occurrence\/1260330538","example_specimen_2":"https:\/\/www.gbif.org\/occurrence\/931008236","example_specimen_3":"https:\/\/www.gbif.org\/occurrence\/1898893187","example_specimen_4":"https:\/\/www.gbif.org\/occurrence\/931003908","example_specimen_5":"https:\/\/www.gbif.org\/occurrence\/931003722","example_specimen_6":"https:\/\/www.gbif.org\/occurrence\/1258396628","example_specimen_7":"https:\/\/www.gbif.org\/occurrence\/1253781866","example_specimen_8":"https:\/\/www.gbif.org\/occurrence\/1253781882","example_specimen_9":"https:\/\/www.gbif.org\/occurrence\/1253781905","example_specimen_10":"https:\/\/www.gbif.org\/occurrence\/1253863826"}},{"facet_id":"8","facet_name":"Habit (growth form)","heritable":"0","facet_value_id":"1896","facet_value_name":"Epiphyte","facet_value_code":null,"source_id":"16","source_name":"WCVP Lifeform Description: Epiphyte","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","wcvp_genus":"Pseudorhipsalis","wcvp_family":"Cactaceae","wcvp_taxon_name":"Pseudorhipsalis amazonica","lifeform_description":"succulent epiphyte"}},{"facet_id":"8","facet_name":"Habit (growth form)","heritable":"0","facet_value_id":"1907","facet_value_name":"Succulent","facet_value_code":null,"source_id":"27","source_name":"WCVP Lifeform Description: Succulent","scored_via":"direct","wfo_id":"wfo-0000398690","score_meta_data":{"wfo_id":"wfo-0000398690","ipni_id":"60426912-2","powo_id":"60426912-2","wcvp_genus":"Pseudorhipsalis","wcvp_family":"Cactaceae","wcvp_taxon_name":"Pseudorhipsalis amazonica","lifeform_description":"succulent epiphyte"}},{"facet_id":"2","facet_name":"CITES Status","heritable":"1","facet_value_id":"257","facet_value_name":"Appendix II","facet_value_code":"CITES_II","source_id":"921","source_name":"Species+ CITES Appendix II data","scored_via":"ancestor","wfo_id":"wfo-7000000098","score_meta_data":{"Id":"","wfoid":"wfo-7000000098","speciesplus_url":"https:\/\/speciesplus.net\/species#\/taxon_concepts?taxonomy=cites_eu&taxon_concept_query=Cactaceae"}},{"facet_id":"8","facet_name":"Habit (growth form)","heritable":"0","facet_value_id":"1905","facet_value_name":"Shrub","facet_value_code":null,"source_id":"25","source_name":"WCVP Lifeform Description: Shrub","scored_via":"synonym","wfo_id":"wfo-0000652214","score_meta_data":{"wfo_id":"wfo-0000652214","ipni_id":"82237-2","powo_id":"82237-2","wcvp_genus":"Disocactus","wcvp_family":"Cactaceae","wcvp_taxon_name":"Disocactus amazonicus","lifeform_description":"succulent subshrub"}},{"facet_id":"8","facet_name":"Habit (growth form)","heritable":"0","facet_value_id":"1906","facet_value_name":"Subshrub","facet_value_code":null,"source_id":"26","source_name":"WCVP Lifeform Description: Subshrub","scored_via":"synonym","wfo_id":"wfo-0000652214","score_meta_data":{"wfo_id":"wfo-0000652214","ipni_id":"82237-2","powo_id":"82237-2","wcvp_genus":"Disocactus","wcvp_family":"Cactaceae","wcvp_taxon_name":"Disocactus amazonicus","lifeform_description":"succulent subshrub"}},{"facet_id":"8","facet_name":"Habit (growth form)","heritable":"0","facet_value_id":"1907","facet_value_name":"Succulent","facet_value_code":null,"source_id":"27","source_name":"WCVP Lifeform Description: Succulent","scored_via":"synonym","wfo_id":"wfo-0000652214","score_meta_data":{"wfo_id":"wfo-0000652214","ipni_id":"82237-2","powo_id":"82237-2","wcvp_genus":"Disocactus","wcvp_family":"Cactaceae","wcvp_taxon_name":"Disocactus amazonicus","lifeform_description":"succulent subshrub"}}]
+                    [snippet_categories_ss] => Array
+                        (
+                        )
+
+                    [snippet_languages_ss] => Array
+                        (
+                        )
+
+                    [snippet_name_ids_ss] => Array
+                        (
+                        )
+
+                    [snippet_imported_ss] => Array
+                        (
+                        )
+
+                    [snippet_bodies_txt] => Array
+                        (
+                        )
+
+                    [snippet_bodies_meta_txt] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+)

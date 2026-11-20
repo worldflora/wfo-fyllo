@@ -226,6 +226,7 @@ if($message){
     <div class="mb-3">
         <div class="input-group">
             <input id="github-file-path" name="github_path" value="<?php echo $file_path ?>" type="text" class="form-control" readonly placeholder="Path within GitHub repository" aria-label="Path within GitHub repository" aria-describedby="pick-button-help">
+            <input id="fyllo_last_github_folder" name="fyllo_last_github_folder" type="hidden" value="<?php echo isset($_SESSION['fyllo_last_github_folder']) ? $_SESSION['fyllo_last_github_folder'] : '' ?>" />
             <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" id="pick-button" data-bs-target="#dsFilePicker" <?php echo $disabled  ?>>DS Picker</button>
         </div>
         <div id="pick-button-help" class="form-text">Use the picker to select a CSV file from the GitHub repository. You can't enter this path manually.</div>
@@ -283,7 +284,18 @@ if($message){
 // modal dialogue - load content on show
 
 document.getElementById('dsFilePicker').addEventListener('show.bs.modal', event => {
-    update_ds_pick_list();
+    // need to send the current path
+    let currentVal = document.getElementById('github-file-path').value; 
+
+    // this will be a file but we want the directory
+    currentVal = currentVal.replace(/\/[^/]*$/, '/');
+
+    // if we don't have it we try and load it from the session value
+    if(!currentVal){
+        currentVal =  document.getElementById('fyllo_last_github_folder').value;
+    }
+
+    update_ds_pick_list(currentVal);
 })
 
 function update_ds_pick_list(path = ''){
@@ -298,8 +310,6 @@ function update_ds_pick_list(path = ''){
             const folders = document.getElementsByClassName('wfo-ds-file-pick-folder');
             for (var i=0; i < folders.length; i++) {
               folders[i].onclick = function(event){
-                console.log(event.target.dataset.wfoPath);
-                // check if this is a file or not
                 update_ds_pick_list(event.target.dataset.wfoPath);
               }
             };

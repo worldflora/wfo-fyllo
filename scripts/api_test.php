@@ -78,6 +78,9 @@ function test_taxon_data($wfo_id){
 
     // get the graph of the taxon
     $taxon_graph = get_taxon_graph($wfo_id);
+
+    //print_r($taxon_graph); exit;
+
     $taxon_graphs = array($taxon_graph); // it expects an array of graphs
 
    // print_r($taxon_graphs);
@@ -90,7 +93,8 @@ function test_taxon_data($wfo_id){
     $headers[] = 'Content-Type: application/json';
     $headers[] = 'Authorization: Bearer '. FYLLO_BEARER_TOKEN;
 
-    $curl = curl_init('http://localhost:3030/api.php');
+//    $curl = curl_init('http://localhost:3030/api.php');
+    $curl = curl_init('https://fyllo.rbge.info/api.php');
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_USERAGENT, 'World Flora Online: Fyllo CMS');
     curl_setopt($curl, CURLOPT_POSTFIELDS, $graph_json);
