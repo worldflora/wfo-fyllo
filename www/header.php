@@ -81,7 +81,7 @@
                                 if($till){
                                     echo "Indexer off in: $till";
                                 }else{
-                                    echo "Indexer if off";
+                                    echo "Indexer is off";
                                 }
                                 
                             ?>
